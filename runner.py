@@ -7,7 +7,10 @@ def read_secrets() -> dict:
     filename = os.path.join('config.txt')
     try:
         with open(filename, mode='r') as f:
-            return json.loads(f.read())
+            config = json.loads(f.read())
+            for env in config["EnvVar"]:
+                if env not in os.environ: 
+                    os.environ[env] = config["EnvVar"][env]
     except FileNotFoundError:
         return {}
         

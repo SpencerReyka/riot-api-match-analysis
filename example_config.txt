@@ -1,1 +1,5 @@
-riot_api="example_riot_api"
+{
+    "EnvVar": {
+        "RIOT_API_KEY_APP" : "example-api"    
+    }
+}
