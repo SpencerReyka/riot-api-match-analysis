@@ -1,5 +1,6 @@
 import requests
 import os
+import psycopg2
 
 
 class Profile():
@@ -52,6 +53,16 @@ class MatchHistory():
 
         return dps_threats/total_games
 
+    def calculate_win_ratio(self):
+        total_games = 0 
+        win = 0
+        for match in self.matches:
+            if match.win:
+                win += 1
+            total_games += 1
+
+        return win/total_games
+
     def print_matches(self):
         for match in self.matches:
             print(match)
@@ -61,9 +72,11 @@ class Match():
         self.username = username
         self.match_data = match_data
         self.dps = 0
+        self.win = False
         for participant in self.match_data["info"]["participants"]:
             if participant["summonerName"] == username:
                 self.dps = participant["challenges"]["damagePerMinute"]
+                self.win = participant["win"]
 
         self.dps_threat = True if self.dps > 1800 else False
         
@@ -80,6 +93,8 @@ class RiotProxy():
     def __init__(self, api_key):
         self.api_key = api_key
         self.api_key_url = "?api_key=" + api_key
+        self.postgres_layer = PostgresProxy()
+        self.postgres_layer.add_match("test")
 
     def get_summoner_url(self):
         return "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/"
@@ -109,6 +124,42 @@ class RiotProxy():
         res = r.json()
         return res
 
+class PostgresProxy():
+
+    def __init__(self):
+        self.port = API_KEY = os.getenv('DOCKER_PORT')
+        self.db = API_KEY = os.getenv('DOCKER_DB')
+        self.user = API_KEY = os.getenv('DOCKER_USER')
+        self.password = API_KEY = os.getenv('DOCKER_PASS')
+
+    def add_match(self, match):
+        try:
+            # Connect to an existing database
+            connection = psycopg2.connect(user=self.user,
+                                        password=self.password,
+                                        host="127.0.0.1",
+                                        port=self.port,
+                                        database=self.db)
+
+            # Create a cursor to perform database operations
+            cursor = connection.cursor()
+            # Print PostgreSQL details
+            print("PostgreSQL server information")
+            print(connection.get_dsn_parameters(), "\n")
+            # Executing a SQL query
+            cursor.execute("SELECT version();")
+            # Fetch result
+            record = cursor.fetchone()
+            print("You are connected to - ", record, "\n")
+
+        except (Exception, Error) as error:
+            print("Error while connecting to PostgreSQL", error)
+        finally:
+            if (connection):
+                cursor.close()
+                connection.close()
+                print("PostgreSQL connection is closed")
+
 
 def set_up_code():
     API_KEY = os.getenv('RIOT_API_KEY_APP')
@@ -127,10 +178,12 @@ def set_up_code():
     print(mcbad_matches)
 
     rbg_matches.retrieve_matches()
-    print("Ratio of DPS threats is: " + str(rbg_matches.calculate_dps_ratio()))
+    print("Ratio of DPS threats for " + rbg_matches.person.name + " is: " + str(rbg_matches.calculate_dps_ratio()))
+    print("Ratop of wins for " + rbg_matches.person.name + " is: " + str(rbg_matches.calculate_win_ratio()))
 
     mcbad_matches.retrieve_matches()
-    print("Ratio of DPS threats is: " + str(mcbad_matches.calculate_dps_ratio()))
+    print("Ratio of DPS threats for " + mcbad_matches.person.name + " is: " + str(mcbad_matches.calculate_dps_ratio()))
+    print("Ratop of wins for " + mcbad_matches.person.name + " is: " + str(mcbad_matches.calculate_win_ratio()))
 
 
 

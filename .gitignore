@@ -1,5 +1,8 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+local_riot_psql_data/
+
+.DS_Store
 
 #ignore the config file cause thats our secrets
 config.txt
