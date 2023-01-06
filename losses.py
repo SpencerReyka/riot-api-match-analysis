@@ -1,7 +1,7 @@
 import requests
 import os
 import psycopg2
-
+import time
 
 class Profile():
     def __init__(self, riotProxy, accountName):
@@ -91,6 +91,7 @@ class Config():
 class RiotProxy():
     
     def __init__(self, api_key):
+        self.rate_limiter = RateLimit()
         self.api_key = api_key
         self.api_key_url = "?api_key=" + api_key
         self.postgres_layer = PostgresProxy()
@@ -103,26 +104,48 @@ class RiotProxy():
         return "https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/" + puuid + "/ids"
 
     def get_matches_path_url(self): 
-        return "&type=normal&start=0&count=40"
+        return "&type=normal&start=0&count=100"
 
     def get_match_url(self):
         return "https://americas.api.riotgames.com/lol/match/v5/matches/"
 
-    def get_summoner(self, accountName):
-        r = requests.get(self.get_summoner_url() + accountName + self.api_key_url)
+    def request_url(self, url):
+        self.rate_limiter.check_and_sleep()
+        r = requests.get(url)
         res = r.json()
-        print(res)
         return res
+
+    def get_summoner(self, accountName):
+        return self.request_url(self.get_summoner_url() + accountName + self.api_key_url)
 
     def get_matches(self, puuid):
-        r = requests.get(self.get_matches_url(puuid) + self.api_key_url + self.get_matches_path_url())
-        res = r.json()
-        return res
+        return self.request_url(self.get_matches_url(puuid) + self.api_key_url + self.get_matches_path_url())
 
     def get_match(self, match_id):
-        r = requests.get(self.get_match_url() + match_id + self.api_key_url)
-        res = r.json()
-        return res
+        return self.request_url(self.get_match_url() + match_id + self.api_key_url)
+
+class RateLimit():
+    def __init__(self):
+        self.period_start = time.time() 
+        self.PERIOD = 150
+        self.count = 0
+        self.MAX_COUNT = 100
+    
+    def check_and_sleep(self):
+        elapsed = time.time() - self.period_start
+        if elapsed > self.PERIOD:
+            print("resetting period")
+            self.period_start = time.time()
+            self.count = 1
+        elif self.count >= self.MAX_COUNT:
+            sleeptime = self.PERIOD - elapsed
+            print("max count, restarting, sleeping for: " + str(sleeptime))
+            time.sleep(self.PERIOD - elapsed)
+            self.period_start = time.time()
+            self.count = 1
+        else:
+            print("successful call, count: " + str(self.count))
+            self.count += 1     
 
 class PostgresProxy():
 
