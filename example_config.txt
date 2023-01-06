@@ -1,6 +1,6 @@
 {
     "EnvVar": {
-        "RIOT_API_KEY_APP" : "RGAPI-26c30190-bb45-4ed7-9732-321c53969071",
+        "RIOT_API_KEY_APP" : "test",
         "DOCKER_PORT" : "1234",
         "DOCKER_DB" : "postgres", 
         "DOCKER_USER" : "postgres",
