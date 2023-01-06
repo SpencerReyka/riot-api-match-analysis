@@ -26,9 +26,10 @@ class Profile():
         return ret
 
 class MatchHistory():
-    def __init__(self, riotProxy, person):
+    def __init__(self, riotProxy, postgresProxy, person):
         self.riotProxy = riotProxy
         self.person = person
+        self.postgres_layer = postgresProxy
 
     def __str__(self):
         ret = "This is a match history for \"" + self.person.name + "\""
@@ -41,7 +42,10 @@ class MatchHistory():
         for match_id in matches_ids:
             match_data = self.riotProxy.get_match(match_id)
             if match_data["info"]["gameMode"] == "ARAM":
-                self.matches.append(Match(self.person.name, match_data))
+                temp_match = Match(self.person.name, match_data)
+                self.postgres_layer.add_match(temp_match.id, temp_match.win, temp_match.dps_threat, match_data)
+
+                self.matches.append(temp_match)
 
     def calculate_dps_ratio(self):
         total_games = 0 
@@ -69,6 +73,7 @@ class MatchHistory():
 
 class Match():
     def __init__(self, username, match_data):
+        self.id = match_data["metadata"]["matchId"]
         self.username = username
         self.match_data = match_data
         self.dps = 0
@@ -94,8 +99,6 @@ class RiotProxy():
         self.rate_limiter = RateLimit()
         self.api_key = api_key
         self.api_key_url = "?api_key=" + api_key
-        self.postgres_layer = PostgresProxy()
-        self.postgres_layer.add_match("test")
 
     def get_summoner_url(self):
         return "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/"
@@ -155,58 +158,65 @@ class PostgresProxy():
         self.user = API_KEY = os.getenv('DOCKER_USER')
         self.password = API_KEY = os.getenv('DOCKER_PASS')
 
-    def add_match(self, match):
         try:
             # Connect to an existing database
-            connection = psycopg2.connect(user=self.user,
+            self.connection = psycopg2.connect(user=self.user,
                                         password=self.password,
                                         host="127.0.0.1",
                                         port=self.port,
                                         database=self.db)
 
-            # Create a cursor to perform database operations
-            cursor = connection.cursor()
-            # Print PostgreSQL details
-            print("PostgreSQL server information")
-            print(connection.get_dsn_parameters(), "\n")
-            # Executing a SQL query
-            cursor.execute("SELECT version();")
-            # Fetch result
-            record = cursor.fetchone()
-            print("You are connected to - ", record, "\n")
+        except (Exception, Error) as error:
+            print("Error while connecting to PostgreSQL", error)                     
 
+    def add_match(self, match_id, win, dps_threat, match_data):  
+        
+        try:
+            # Create a cursor to perform database operations
+            cursor = self.connection.cursor()
+            # Executing a SQL query
+            cursor.execute("INSERT INTO match_data (riot_match_id, win, dps_threat, match_data) VALUES(%s, %s, %s, %s)", (match_id, win, dps_threat, str(match_data)))
+            self.connection.commit()
         except (Exception, Error) as error:
             print("Error while connecting to PostgreSQL", error)
         finally:
-            if (connection):
+            if (cursor):
                 cursor.close()
-                connection.close()
-                print("PostgreSQL connection is closed")
+                print("cursor connection is closed")
+
+    def close(self):
+        if (self.connection):
+            self.connection.close()
+            print("PostgreSQL connection is closed")
 
 
 def set_up_code():
     API_KEY = os.getenv('RIOT_API_KEY_APP')
     riotProxy = RiotProxy(API_KEY)
+    postgresProxy = PostgresProxy()
 
-    rbg = Profile(riotProxy, "rbgcanpegme")
+    rbg = Profile(riotProxy, "relevantsam")
     print(rbg)
 
-    mcbad = Profile(riotProxy, "MądBcBąd") 
-    print(mcbad)
+    # mcbad = Profile(riotProxy, "MądBcBąd") 
+    # print(mcbad)
 
-    rbg_matches = MatchHistory(riotProxy, rbg)
+    # currently match history creates a postgres layer, but we need this to be passed in 
+    rbg_matches = MatchHistory(riotProxy, postgresProxy, rbg)
     print(rbg_matches)
 
-    mcbad_matches = MatchHistory(riotProxy, mcbad)
-    print(mcbad_matches)
+    # mcbad_matches = MatchHistory(riotProxy, postgresProxy, mcbad)
+    # print(mcbad_matches)
 
     rbg_matches.retrieve_matches()
     print("Ratio of DPS threats for " + rbg_matches.person.name + " is: " + str(rbg_matches.calculate_dps_ratio()))
     print("Ratop of wins for " + rbg_matches.person.name + " is: " + str(rbg_matches.calculate_win_ratio()))
 
-    mcbad_matches.retrieve_matches()
-    print("Ratio of DPS threats for " + mcbad_matches.person.name + " is: " + str(mcbad_matches.calculate_dps_ratio()))
-    print("Ratop of wins for " + mcbad_matches.person.name + " is: " + str(mcbad_matches.calculate_win_ratio()))
+    # mcbad_matches.retrieve_matches()
+    # print("Ratio of DPS threats for " + mcbad_matches.person.name + " is: " + str(mcbad_matches.calculate_dps_ratio()))
+    # print("Ratop of wins for " + mcbad_matches.person.name + " is: " + str(mcbad_matches.calculate_win_ratio()))
+
+    postgresProxy.close()
 
 
 
