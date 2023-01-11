@@ -15,7 +15,7 @@ limiter
 
 
 # WORK IN PROGRESS
-add some sort of user reference to the match_data table 
+add some sort of user reference to the match_data
 need to add database to cache results (once i get a match, should never need to pull that again)
 add a postgres database 
 add a limiter to when you open the file, it should cache the start time and count, so that subsequent runs can continue the limiter
