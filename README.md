@@ -22,3 +22,15 @@ add a limiter to when you open the file, it should cache the start time and coun
 
 
 docker run --name loca-riot-psql -v local_riot_psql_data:/var/lib/postgresql/data -p 54320:5432 -e POSTGRES_PASSWORD=my_password -d postgres
+
+
+
+# Layout 
+TBD finish this 
+
+
+
+
+# Riot API 
+using old name cause new name doesn't show up 
+
