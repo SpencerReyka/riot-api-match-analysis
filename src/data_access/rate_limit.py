@@ -9,6 +9,11 @@ class RateLimit():
     
     def check_and_sleep(self):
         elapsed = time.time() - self.period_start
+        print(elapsed)
+
+        #check riot's docs for better description on this, can probably use some granular bucketing system
+
+
         if elapsed > self.PERIOD:
             print("resetting period")
             self.period_start = time.time()

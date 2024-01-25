@@ -13,13 +13,18 @@
 # COMPLETED 
 limiter 
 
+UPDATE THIS DOC TO BE ACCURATE
+
 
 # WORK IN PROGRESS
 add some sort of user reference to the match_data
 need to add database to cache results (once i get a match, should never need to pull that again)
 add a postgres database 
+add calls to the database 
+add a setup script, so like have --run, and --start database
+add documentation for this (like in the Readme )
 add a limiter to when you open the file, it should cache the start time and count, so that subsequent runs can continue the limiter
-
+see if you can be more granular with the rate limiter
 
 docker run --name loca-riot-psql -v local_riot_psql_data:/var/lib/postgresql/data -p 54320:5432 -e POSTGRES_PASSWORD=my_password -d postgres
 
