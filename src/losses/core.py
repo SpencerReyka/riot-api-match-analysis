@@ -34,9 +34,9 @@ def set_up_code():
     print("Ratio of DPS threats for " + rbg_matches.person.name + " is: " + str(rbg_matches.calculate_dps_ratio()))
     print("Ratio of wins for " + rbg_matches.person.name + " is: " + str(rbg_matches.calculate_win_ratio()))
 
-    mcbad_matches.retrieve_matches()
-    print("Ratio of DPS threats for " + mcbad_matches.person.name + " is: " + str(mcbad_matches.calculate_dps_ratio()))
-    print("Ratio of wins for " + mcbad_matches.person.name + " is: " + str(mcbad_matches.calculate_win_ratio()))
+    # mcbad_matches.retrieve_matches()
+    # print("Ratio of DPS threats for " + mcbad_matches.person.name + " is: " + str(mcbad_matches.calculate_dps_ratio()))
+    # print("Ratio of wins for " + mcbad_matches.person.name + " is: " + str(mcbad_matches.calculate_win_ratio()))
 
     postgresProxy.close()
 

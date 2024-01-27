@@ -26,14 +26,14 @@ class PostgresProxy():
             # Create a cursor to perform database operations
             cursor = self.connection.cursor()
             # Executing a SQL query
-            cursor.execute("INSERT INTO match_data (riot_match_id, win, dps_threat, match_data) VALUES(%s, %s, %s, %s)", (match_id, win, dps_threat, str(match_data)))
+            cursor.execute("INSERT INTO match_data (riot_match_id, win, dps_threat, match_data) VALUES(%s, %s, %s, %s) ON CONFLICT DO NOTHING", (match_id, win, dps_threat, str(match_data)))
             self.connection.commit()
         except (Exception, Error) as error:
             print("Error while connecting to PostgreSQL", error)
         finally:
             if (cursor):
                 cursor.close()
-                print("cursor connection is closed")
+                #print("cursor connection is closed")
 
     def close(self):
         if (self.connection):

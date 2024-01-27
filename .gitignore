@@ -3,6 +3,7 @@ __pycache__/
 local_riot_psql_data/
 
 .DS_Store
+.pyway.conf
 
 #ignore the config file cause thats our secrets
 config.txt
