@@ -25,7 +25,6 @@ database readme section
 # WORK IN PROGRESS
 add some sort of user reference to the match_data
 need to add database to cache results (once i get a match, should never need to pull that again)
-add a postgres database 
 add calls to the database 
 add a setup script, so like have --run, and --start database
 add documentation for this (like in the Readme )
@@ -46,7 +45,9 @@ using old name cause new name doesn't show up
 
 # Database
 
+```bash
 docker run --name loca-riot-psql -v local_riot_psql_data:/var/lib/postgresql/data -p 54320:5432 -e POSTGRES_PASSWORD=my_password -d postgres
+```
 
 
 ## Database Migration

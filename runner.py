@@ -16,4 +16,7 @@ def read_secrets() -> dict:
         
 secrets = read_secrets()
 
+
+#set code to either run or startup database
 set_up_code()
+
