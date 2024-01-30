@@ -35,6 +35,27 @@ class PostgresProxy():
                 cursor.close()
                 #print("cursor connection is closed")
 
+    def add_matches(self, matches):  
+                
+        try:
+            # Create a cursor to perform database operations
+            cursor = self.connection.cursor()
+
+            values = ""
+            for match in matches:
+                values += f"(%{match.id}, %{match.win}, %{match.dps_threat}, %{str(match.match_data)}) "
+
+            # Executing a SQL query
+            cursor.execute("INSERT INTO match_data (riot_match_id, win, dps_threat, match_data) VALUES %s ON CONFLICT DO NOTHING", (values))
+            self.connection.commit()
+        except (Exception, Error) as error:
+            print("Error while connecting to PostgreSQL", error)
+        finally:
+            if (cursor):
+                cursor.close()
+                #print("cursor connection is closed")
+
+
     def close(self):
         if (self.connection):
             self.connection.close()
