@@ -1,5 +1,10 @@
 # riot-api-match-analysis
 
+# High Priority TO-DO
+- add Django 
+
+
+
 # TO DO 
 - add a data proxy "interface" that caches and retrieves data 
 - add a databse proxy and a flat file proxy 
