@@ -4,6 +4,7 @@
         "DOCKER_PORT" : "1234",
         "DOCKER_DB" : "postgres", 
         "DOCKER_USER" : "postgres",
-        "DOCKER_PASS" : "insert_ur_own_password"    
+        "DOCKER_PASS" : "insert_ur_own_password"    ,
+        "SECRET_KEY" : "example_django_key"
     }
 }
