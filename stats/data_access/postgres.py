@@ -18,7 +18,8 @@ class PostgresProxy():
                                         database=self.db)
 
         except Exception as error:
-            print("Error while connecting to PostgreSQL", error)                     
+            print("Error while connecting to PostgreSQL", error)     
+            raise error                
 
     def add_match(self, match_id, win, dps_threat, match_data):  
         
