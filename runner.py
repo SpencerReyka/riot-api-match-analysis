@@ -1,6 +1,6 @@
 import os
 import json
-from src.losses.core import set_up_code
+from stats.losses.core import set_up_code
 
 
 def read_secrets() -> dict:

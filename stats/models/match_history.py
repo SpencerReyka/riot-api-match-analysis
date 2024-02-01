@@ -1,4 +1,4 @@
-from src.models.match import Match
+from stats.models.match import Match
 
 class MatchHistory():
     def __init__(self, riotProxy, postgresProxy, person):

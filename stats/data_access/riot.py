@@ -1,6 +1,6 @@
 import requests
 import urllib.parse
-from src.data_access.rate_limit import RateLimit
+from stats.data_access.rate_limit import RateLimit
 
 class RiotProxy():
     

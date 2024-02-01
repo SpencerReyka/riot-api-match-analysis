@@ -1,9 +1,9 @@
 import requests
 import os
-from src.data_access.postgres import PostgresProxy
-from src.data_access.riot import RiotProxy
-from src.models.profile import Profile
-from src.models.match_history import MatchHistory
+from stats.data_access.postgres import PostgresProxy
+from stats.data_access.riot import RiotProxy
+from stats.models.profile import Profile
+from stats.models.match_history import MatchHistory
 
 class Config():
     def __init__(self, api_key):
