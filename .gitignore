@@ -4,6 +4,7 @@ local_riot_psql_data/
 
 .DS_Store
 .pyway.conf
+.pgpass
 
 #ignore the config file cause thats our secrets
 config.txt

@@ -15,6 +15,7 @@
 (related to LIMITER, we should have like a shut off event, which writes the limiter data to db or flat file)
 - add ability to go through pagination (ugh)
 - add a logging type of thing, where we i run it in debug, it logs, else it ignores log 
+- Create a set_up.py script that creates all necessary config files, so we don't have to have double
 
 # COMPLETED 
 limiter 
@@ -51,8 +52,30 @@ using old name cause new name doesn't show up
 
 # Database
 
+## Running Database From Docker
+
 ```bash
 docker run --name loca-riot-psql -v local_riot_psql_data:/var/lib/postgresql/data -p 54320:5432 -e POSTGRES_PASSWORD=my_password -d postgres
+```
+
+## Database Connection from Django
+One way to direct Django to connect to the database is to create a [Connection Service File](https://www.postgresql.org/docs/current/libpq-pgservice.html) and [Password File](https://www.postgresql.org/docs/current/libpq-pgpass.html) and include them in the project's settings.py
+
+### Connection Service File 
+Make sure a ~/.pg_service.conf exists. 
+The format is:
+```bash
+[mydb]
+host=somehost
+port=5433
+user=admin
+```
+
+### Password File 
+Make sure a .pgpass exists in the project's root directory. 
+The format is:
+```bash
+host:port:database:user:password
 ```
 
 
