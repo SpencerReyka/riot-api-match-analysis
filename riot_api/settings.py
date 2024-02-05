@@ -78,12 +78,9 @@ WSGI_APPLICATION = 'riot_api.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        # "NAME": "postgres",
-        # "HOST": "localhost",
-        # "PORT": "54320",
         "OPTIONS": {
             "service": "postgres",
-            "passfile": ".my_pgpass",
+            "passfile": ".pgpass",
         },
     }
 }
