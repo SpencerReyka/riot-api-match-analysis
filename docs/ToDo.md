@@ -2,12 +2,21 @@
 
 
 ## High Priority TO-DO
-- add Django 
+- Standardize/Compartmentalize configuration, this [github comment](https://github.com/SpencerReyka/riot-api-match-analysis/pull/4#discussion_r1480017890) is a good start
+- Naming schemas for privates
+- Go file by file and just double check everything looks good (formatting, code, following convention)
+- Look into swagger, and into endpoint documentaton (in Readme?)
+- Figure out stats/losses/core code, currently a class in the views
+- Figure out how to create and close a connection for the dps threat lookup
 - DTO stuff, figure out 
 - Create Project folder, and app (project is riot-api, app is stats?)
+- Probably remove the Runner code
+- Seems like Django might want to handle the database, so might want to look into changing from Pyway migration to django-based
 
 
 ## TO DO 
+- Look into Typing helpers
+- Add logging (and error handling?) [middleware](https://medium.com/@techWithAditya/middleware-magic-how-to-use-django-middleware-for-advanced-error-handling-and-exception-management-78573a27204e#:~:text=Django%20provides%20a%20default%20error,middleware%20can%20be%20very%20useful.)
 - add a data proxy "interface" that caches and retrieves data 
 - add a databse proxy and a flat file proxy 
 - add a docker file in the folder that will spin up 
@@ -19,6 +28,35 @@
 - Create a set_up.py script that creates all necessary config files, so we don't have to have double
 
 ## COMPLETED 
+- Added Django
+
+
+# Errors and Bugs 
+
+1) Add more error checking during the Riot api usage
+
+```bash
+Internal Server Error: /stats/calculate/
+Traceback (most recent call last):
+  File "/Users/spencerreyka/venvs/riot_stats/lib/python3.10/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/spencerreyka/venvs/riot_stats/lib/python3.10/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/spencerreyka/development/riot_api/stats_losses/stats/views.py", line 22, in calculate
+    dps_threats = statsService.calculate_dps_threats(content)
+  File "/Users/spencerreyka/development/riot_api/stats_losses/stats/losses/core.py", line 20, in calculate_dps_threats
+    res = [self.calculate_dps_threat(x) for x in names]
+  File "/Users/spencerreyka/development/riot_api/stats_losses/stats/losses/core.py", line 20, in <listcomp>
+    res = [self.calculate_dps_threat(x) for x in names]
+  File "/Users/spencerreyka/development/riot_api/stats_losses/stats/losses/core.py", line 32, in calculate_dps_threat
+    matches.retrieve_matches()
+  File "/Users/spencerreyka/development/riot_api/stats_losses/stats/models/match_history.py", line 20, in retrieve_matches
+    if match_data["info"]["gameMode"] == "ARAM":
+KeyError: 'info'
+```
+
+
+
 limiter 
 
 UPDATE THIS DOC TO BE ACCURATE

@@ -1,4 +1,6 @@
-class Match():
+from django.db import models
+
+class Match(models.Model):
     def __init__(self, username, match_data):
         self.id = match_data["metadata"]["matchId"]
         self.username = username

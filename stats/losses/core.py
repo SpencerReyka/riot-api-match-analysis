@@ -10,6 +10,29 @@ class Config():
         self.api_key = api_key
         print("created Config")  
 
+class StatsService():
+
+    def __init__(self):
+        API_KEY = os.getenv('RIOT_API_KEY_APP')
+        self.riotProxy = RiotProxy(API_KEY)
+
+    def calculate_dps_threats(self, names):
+        res = [self.calculate_dps_threat(x) for x in names]
+
+        return res
+
+    def calculate_dps_threat(self, name):
+
+        with PostgresProxy() as postgresProxy:
+
+            profile = Profile(self.riotProxy, name)
+
+            matches = MatchHistory(self.riotProxy, postgresProxy, profile)
+
+            matches.retrieve_matches()
+
+            return matches.calculate_dps_ratio()
+
 def set_up_code():
     API_KEY = os.getenv('RIOT_API_KEY_APP')
     riotProxy = RiotProxy(API_KEY)
@@ -39,6 +62,10 @@ def set_up_code():
     # print("Ratio of wins for " + mcbad_matches.person.name + " is: " + str(mcbad_matches.calculate_win_ratio()))
 
     postgresProxy.close()
+
+
+
+
 
 
 
