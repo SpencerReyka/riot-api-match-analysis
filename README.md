@@ -1,51 +1,8 @@
 # riot-api-match-analysis
 
-# High Priority TO-DO
-- add Django 
-- DTO stuff, figure out 
-- Create Project folder, and app (project is riot-api, app is stats?)
-
-
-# TO DO 
-- add a data proxy "interface" that caches and retrieves data 
-- add a databse proxy and a flat file proxy 
-- add a docker file in the folder that will spin up 
-- add a script to run the dockerfile 
-- add some sort of flow where no matter how it ends, certain stuff happens, honestly probably just put the main in a try block, and have FINALLY after to make sure things are closed
-(related to LIMITER, we should have like a shut off event, which writes the limiter data to db or flat file)
-- add ability to go through pagination (ugh)
-- add a logging type of thing, where we i run it in debug, it logs, else it ignores log 
-- Create a set_up.py script that creates all necessary config files, so we don't have to have double
-
-# COMPLETED 
-limiter 
-
-UPDATE THIS DOC TO BE ACCURATE
-
-WE DO NOT HANDLE ERROR RETURNS - MUST FIX TODO 
-
-SAVE REQUESTS in memory THEN BATCH save TO DB 
-
-database readme section
-
-
-# WORK IN PROGRESS
-add some sort of user reference to the match_data
-need to add database to cache results (once i get a match, should never need to pull that again)
-add calls to the database 
-add a setup script, so like have --run, and --start database
-add documentation for this (like in the Readme )
-add a limiter to when you open the file, it should cache the start time and count, so that subsequent runs can continue the limiter
-see if you can be more granular with the rate limiter
-
-
-
 
 # Layout 
 TBD finish this 
-
-
-
 
 # Riot API 
 using old name cause new name doesn't show up 
@@ -119,22 +76,32 @@ Updates a checksum in the database. This is for advanced use only, as it could p
 $ pyway checksum --checksum-file V01_01__initial_schema.sql
 ```
 
-## Virtual Environment
+# Virtual Environment
 
-### Create Environment
+## Create Environment
 
 ```bash
 spencerreyka@Spencers-MBP stats_losses % python3 -m venv ~/venvs/riot_stats 
 ```
 
-### Activate Environment 
+## Activate Environment 
 
 ```bash
 spencerreyka@Spencers-MBP stats_losses % source ~/venvs/riot_stats/bin/activate
 ```
 
-### Deactivate Environment
+## Deactivate Environment
 
 ```bash
 (riot_stats) spencerreyka@Spencers-MBP stats_losses % deactivate
 ```
+
+
+
+# CodeOwners
+
+To use a CODEOWNERS file, create a new file called CODEOWNERS in the .github/, root, or docs/ directory of the repository, in the branch where you'd like to add the code owners. If CODEOWNERS files exist in more than one of those locations, GitHub will search for them in that order and use the first one it finds.
+
+Each CODEOWNERS file assigns the code owners for a single branch in the repository. Thus, you can assign different code owners for different branches, such as @octo-org/codeowners-team for a code base on the default branch and @octocat for a GitHub Pages site on the gh-pages branch.
+
+For more on CodeOwners, visit [this github page](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)
