@@ -17,27 +17,21 @@ class StatsService():
         self.riotProxy = RiotProxy(API_KEY)
 
     def calculate_dps_threats(self, names):
-        res = []
-
-        for name in names:
-            dps_threat = self.calculate_dps_threat(name)
-            res.append(dps_threat)
+        res = [self.calculate_dps_threat(x) for x in names]
 
         return res
 
     def calculate_dps_threat(self, name):
 
-        postgresProxy = PostgresProxy()
+        with PostgresProxy() as postgresProxy:
 
-        profile = Profile(self.riotProxy, name)
+            profile = Profile(self.riotProxy, name)
 
-        matches = MatchHistory(self.riotProxy, postgresProxy, profile)
+            matches = MatchHistory(self.riotProxy, postgresProxy, profile)
 
-        matches.retrieve_matches()
+            matches.retrieve_matches()
 
-        postgresProxy.close()
-
-        return matches.calculate_dps_ratio()
+            return matches.calculate_dps_ratio()
 
 def set_up_code():
     API_KEY = os.getenv('RIOT_API_KEY_APP')

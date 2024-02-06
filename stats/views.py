@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from stats.losses.core import StatsService
+from json.decoder import JSONDecodeError
 import json
 
 statsService = StatsService()
@@ -13,17 +14,19 @@ def index(request):
 
 
 def calculate(request):
-    statsService
-    body = json.loads(request.body.decode('utf-8'))
-    print(body)
-    content = body['usernames']
+
+    try:
+        body = json.loads(request.body)
+        content = body['usernames']
     
-    dps_threats = statsService.calculate_dps_threats(content)
+        dps_threats = statsService.calculate_dps_threats(content)
 
-    res = "DPS Threat Ratio:\n"
+        res = "DPS Threat Ratio:\n"
 
-    for i, dps_threat in enumerate(dps_threats):
-        res += f"{content[i]}: {dps_threat}"
+        for i, dps_threat in enumerate(dps_threats):
+            res += f"{content[i]}: {dps_threat}\n"
 
 
-    return HttpResponse(res)
+        return HttpResponse(res, status=200)
+    except ValueError or JSONDecodeError:
+        return HttpResponse("Malformed data!", 400)

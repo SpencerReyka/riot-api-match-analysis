@@ -9,6 +9,7 @@ class PostgresProxy():
         self.user = API_KEY = os.getenv('DOCKER_USER')
         self.password = API_KEY = os.getenv('DOCKER_PASS')
 
+    def __enter__(self):
         try:
             # Connect to an existing database
             self.connection = psycopg2.connect(user=self.user,
@@ -16,10 +17,14 @@ class PostgresProxy():
                                         host="127.0.0.1",
                                         port=self.port,
                                         database=self.db)
+            return self
 
         except Exception as error:
             print("Error while connecting to PostgreSQL", error)     
-            raise error                
+            raise error
+    
+    def __exit__(self, *args):
+        self.close()
 
     def add_match(self, match_id, win, dps_threat, match_data):  
         
