@@ -76,21 +76,21 @@ Updates a checksum in the database. This is for advanced use only, as it could p
 $ pyway checksum --checksum-file V01_01__initial_schema.sql
 ```
 
-## Virtual Environment
+# Virtual Environment
 
-### Create Environment
+## Create Environment
 
 ```bash
 spencerreyka@Spencers-MBP stats_losses % python3 -m venv ~/venvs/riot_stats 
 ```
 
-### Activate Environment 
+## Activate Environment 
 
 ```bash
 spencerreyka@Spencers-MBP stats_losses % source ~/venvs/riot_stats/bin/activate
 ```
 
-### Deactivate Environment
+## Deactivate Environment
 
 ```bash
 (riot_stats) spencerreyka@Spencers-MBP stats_losses % deactivate
