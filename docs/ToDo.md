@@ -7,6 +7,7 @@
 - DTO stuff, figure out 
 - Create Project folder, and app (project is riot-api, app is stats?)
 - Probably remove the Runner code
+- Add to readme about endpoint? Maybe look into swagger too.
 
 
 ## TO DO 
