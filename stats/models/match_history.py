@@ -17,7 +17,9 @@ class MatchHistory(models.Model):
         matches_ids = self.riotProxy.get_matches(self.person.puuid)
         for match_id in matches_ids:
             match_data = self.riotProxy.get_match(match_id)
-            if match_data["info"]["gameMode"] == "ARAM":
+            if 'status' in match_data:
+                raise Exception("Probably Rate limited! Exact error is: ", match_data)
+            if match_data != None and match_data["info"]["gameMode"] == "ARAM":
                 temp_match = Match(self.person.name, match_data)
                 self.postgres_layer.add_match(temp_match.id, temp_match.win, temp_match.dps_threat, match_data)
 
