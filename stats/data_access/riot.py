@@ -42,4 +42,17 @@ class RiotProxy():
         return self.request_url(self.get_matches_url(puuid) + self.api_key_url + self.get_matches_path_url())
 
     def get_match(self, match_id):
-        return self.request_url(self.get_match_url() + match_id + self.api_key_url)
+        try:
+            return self.request_url(self.get_match_url() + match_id + self.api_key_url)
+        except requests.exceptions.HTTPError as errh:
+            print ("Http Error:",errh)
+            return None
+        except requests.exceptions.ConnectionError as errc:
+            print ("Error Connecting:",errc)
+            return None
+        except requests.exceptions.Timeout as errt:
+            print ("Timeout Error:",errt)
+            return None
+        except requests.exceptions.RequestException as err:
+            print ("Oops: Something Else",err)
+            return None
