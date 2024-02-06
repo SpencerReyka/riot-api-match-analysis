@@ -1,4 +1,6 @@
-class Profile():
+from django.db import models
+
+class Profile(models.Model):
     def __init__(self, riotProxy, accountName):
         self.riotProxy = riotProxy
         res = riotProxy.get_summoner(accountName)

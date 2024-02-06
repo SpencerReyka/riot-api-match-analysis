@@ -1,6 +1,7 @@
 from stats.models.match import Match
+from django.db import models
 
-class MatchHistory():
+class MatchHistory(models.Model):
     def __init__(self, riotProxy, postgresProxy, person):
         self.riotProxy = riotProxy
         self.person = person

@@ -2,9 +2,11 @@
 
 
 ## High Priority TO-DO
-- add Django 
+- Figure out stats/losses/core code, currently a class in the views
+- Figure out how to create and close a connection for the dps threat lookup
 - DTO stuff, figure out 
 - Create Project folder, and app (project is riot-api, app is stats?)
+- Probably remove the Runner code
 
 
 ## TO DO 
@@ -19,6 +21,12 @@
 - Create a set_up.py script that creates all necessary config files, so we don't have to have double
 
 ## COMPLETED 
+- Added Django
+
+
+
+
+
 limiter 
 
 UPDATE THIS DOC TO BE ACCURATE
