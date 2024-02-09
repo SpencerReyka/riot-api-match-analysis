@@ -30,3 +30,7 @@ def calculate(request):
         return HttpResponse(res, status=200)
     except ValueError or JSONDecodeError:
         return HttpResponse("Malformed data!", 400)
+
+class ProfileViewSet(viewsets.ModelViewSet):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
