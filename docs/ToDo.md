@@ -2,6 +2,7 @@
 
 
 ## High Priority TO-DO
+- Make the Models more like data contracts/DBO, referencing this [comment](https://github.com/SpencerReyka/riot-api-match-analysis/pull/5#discussion_r1482350383)
 - Standardize/Compartmentalize configuration, this [github comment](https://github.com/SpencerReyka/riot-api-match-analysis/pull/4#discussion_r1480017890) is a good start
 - Naming schemas for privates
 - Go file by file and just double check everything looks good (formatting, code, following convention)
@@ -15,6 +16,8 @@
 
 
 ## TO DO 
+- Backing off instead of proactive but just use the time from the rate-limited response 
+- Look into figuring out how to rate limit across threads 
 - Look into Typing helpers
 - Add logging (and error handling?) [middleware](https://medium.com/@techWithAditya/middleware-magic-how-to-use-django-middleware-for-advanced-error-handling-and-exception-management-78573a27204e#:~:text=Django%20provides%20a%20default%20error,middleware%20can%20be%20very%20useful.)
 - add a data proxy "interface" that caches and retrieves data 
