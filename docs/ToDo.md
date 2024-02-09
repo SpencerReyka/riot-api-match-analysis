@@ -2,6 +2,7 @@
 
 
 ## High Priority TO-DO
+- Add serializer
 - Make the Models more like data contracts/DBO, referencing this [comment](https://github.com/SpencerReyka/riot-api-match-analysis/pull/5#discussion_r1482350383)
 - Standardize/Compartmentalize configuration, this [github comment](https://github.com/SpencerReyka/riot-api-match-analysis/pull/4#discussion_r1480017890) is a good start
 - Naming schemas for privates

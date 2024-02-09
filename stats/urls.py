@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     # ex: /stats/
     path("", views.index, name="index"),
-    # ex: /stats/5/
+    # ex: /stats/calculate/
     path("calculate/", views.calculate, name="calculate"),
 ]
 
