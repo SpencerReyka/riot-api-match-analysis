@@ -1,7 +1,15 @@
 from django.urls import path
 from . import views
 
-urlpatterns = [
+from rest_framework import routers
+
+
+router = routers.DefaultRouter()
+router.register(r'', views.RiotAccountViewSet)
+
+urlpatterns = router.urls
+
+urlpatterns += [
     # ex: /stats/
     path("", views.index, name="index"),
     # ex: /stats/calculate/

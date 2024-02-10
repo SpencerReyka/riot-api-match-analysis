@@ -1,6 +1,9 @@
 from django.http import HttpResponse
 from stats.losses.core import StatsService
 from json.decoder import JSONDecodeError
+from rest_framework import viewsets
+from stats.django_models import RiotAccount
+from stats.serializer import RiotAccountSerializer
 import json
 
 statsService = StatsService()
@@ -31,6 +34,6 @@ def calculate(request):
     except ValueError or JSONDecodeError:
         return HttpResponse("Malformed data!", 400)
 
-class ProfileViewSet(viewsets.ModelViewSet):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
+class RiotAccountViewSet(viewsets.ModelViewSet):
+    queryset = RiotAccount.objects.all()
+    serializer_class = RiotAccountSerializer
