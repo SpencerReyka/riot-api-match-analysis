@@ -6,6 +6,7 @@
 - Make the Models more like data contracts/DBO, referencing this [comment](https://github.com/SpencerReyka/riot-api-match-analysis/pull/5#discussion_r1482350383)
 - Standardize/Compartmentalize configuration, this [github comment](https://github.com/SpencerReyka/riot-api-match-analysis/pull/4#discussion_r1480017890) is a good start
 - Naming schemas for privates
+- Move the migration functionality from Pyway to Django 
 - Go file by file and just double check everything looks good (formatting, code, following convention)
 - Look into swagger, and into endpoint documentaton (in Readme?)
 - Figure out stats/losses/core code, currently a class in the views
