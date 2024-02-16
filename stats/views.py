@@ -34,6 +34,15 @@ def calculate(request):
     except ValueError or JSONDecodeError:
         return HttpResponse("Malformed data!", 400)
 
+def import_matches(request):
+    try:
+        body = json.loads(request.body)
+        content = body['usernames']
+        print(content)
+    except ValueError or JSONDecodeError:
+        return HttpResponse("Malformed data!", 400)
+
 class RiotAccountViewSet(viewsets.ModelViewSet):
     queryset = RiotAccount.objects.all()
     serializer_class = RiotAccountSerializer
+

@@ -14,6 +14,7 @@ urlpatterns += [
     path("", views.index, name="index"),
     # ex: /stats/calculate/
     path("calculate/", views.calculate, name="calculate"),
+    path("import/", views.import_matches, name="import_matches"),
 ]
 
 
