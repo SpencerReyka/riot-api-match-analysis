@@ -63,6 +63,9 @@ Also verified on 2026-09-24:
    sourced from SOPS, and the database has no public port.
 3. The signed GitHub webhook, 256 MB application and database limits, migrations, health check,
    encrypted backup, checksum, decryption, and `pg_restore --list` validation were verified.
+4. Uptime Kuma contains both the Access-edge and authenticated application/database health
+   monitors. A real Riot ID sync imported an ARAM match, and an immediate repeat reused it from
+   the database cache without inserting another match.
 
 Still required:
 
@@ -71,10 +74,7 @@ Still required:
    attempts per minute per IP and ten application mutations per minute per authenticated user/IP.
    The current API token lacks Zone Rulesets permission, so this cannot be provisioned with the
    available credential.
-2. Register the prepared edge and authenticated-health monitors in Uptime Kuma. The setup code,
-   Access path, service token, SOPS values, and host environment file are present; the existing
-   Kuma administrator password is not stored in SOPS and is required to apply the monitor set.
-3. Create the Django superuser interactively in the Coolify terminal with a unique password. Do
+2. Create the Django superuser interactively in the Coolify terminal with a unique password. Do
    not keep an initial admin password in SOPS or a persistent environment variable.
 
 ## Remaining findings
@@ -85,7 +85,6 @@ Still required:
 | High | Riot forbids public consumption with development or personal keys. | Keep the whole hostname Access-gated, or obtain a production key before allowing public access. |
 | Medium | The dashboard displays Riot IDs and match-derived statistics to Access-authorized viewers. | Keep the Access allowlist limited to intended viewers. |
 | Medium | Django does not natively throttle login attempts. | Treat Cloudflare Access and login rate limiting as required, not optional. |
-| Medium | Uptime Kuma does not yet contain the two prepared Riot monitors because its administrator password is not in the managed secret sources. | Run the idempotent setup once with the existing Kuma password. |
 | Low | A database dump reveals update timestamps and ciphertext. | Expected; keep the Fernet key separate and restrict backup access. |
 
 ## Historical secret decision
