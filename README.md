@@ -22,7 +22,7 @@ The local default is SQLite. To run the production-shaped app and PostgreSQL tog
 
 ```bash
 cp .env.example .env
-# Set POSTGRES_PASSWORD in .env, then:
+# Set POSTGRES_PASSWORD and DATABASE_URL in .env, then:
 docker compose up --build
 ```
 
