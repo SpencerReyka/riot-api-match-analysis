@@ -1,107 +1,87 @@
-# riot-api-match-analysis
+# Riot API match analysis
 
+A private Django dashboard that imports Riot IDs, caches ARAM matches, and highlights losses in
+which the tracked player exceeded the configured damage-per-minute threshold.
 
-# Layout 
-TBD finish this 
+The production hostname is `riot.spencerreyka.com`. Cloudflare Access protects the entire
+hostname; imports, refreshes, Django admin, and Riot API-key rotation additionally require a
+Django staff account.
 
-# Riot API 
-using old name cause new name doesn't show up 
+## Local development
 
-# Database
-
-## Running Database From Docker
-
-```bash
-docker run --name loca-riot-psql -v local_riot_psql_data:/var/lib/postgresql/data -p 54320:5432 -e POSTGRES_PASSWORD=my_password -d postgres
-```
-
-## Database Connection from Django
-One way to direct Django to connect to the database is to create a [Connection Service File](https://www.postgresql.org/docs/current/libpq-pgservice.html) and [Password File](https://www.postgresql.org/docs/current/libpq-pgpass.html) and include them in the project's settings.py
-
-### Connection Service File 
-Make sure a ~/.pg_service.conf exists. 
-The format is:
-```bash
-[mydb]
-host=somehost
-port=5433
-user=admin
-```
-
-### Password File 
-Make sure a .pgpass exists in the project's root directory. 
-The format is:
-```bash
-host:port:database:user:password
-```
-
-
-## Database Migration
-Uses Pyway, a python version of Flyway
-
-### Usage
-
-### Info
-Information lets you know where you are. At first glance, you will see which migrations have already been applied, which others are still pending, and whether there is a discrepancy between the checksum of the local file and the database schema table.
+Python 3.13+ is recommended.
 
 ```bash
-$ pyway info
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+DJANGO_DEBUG=true .venv/bin/python manage.py migrate
+DJANGO_DEBUG=true .venv/bin/python manage.py runserver
 ```
 
-### Validate
-Validate helps you verify that the migrations applied to the database match the ones available locally. This compares the checksums to validate that what is in the migration on disk is what was committed into the database.
+The local default is SQLite. To run the production-shaped app and PostgreSQL together:
 
 ```bash
-$ pyway validate
+cp .env.example .env
+# Set POSTGRES_PASSWORD and DATABASE_URL in .env, then:
+docker compose up --build
 ```
 
-### Migrate
-After validate, it will scan the Database migration dir for available migrations. It will compare them to the migrations that have been applied to the database. If any new migration is found, it will migrate the database to close the gap.
+Open `http://127.0.0.1:8000`. Create a local administrator with:
 
 ```bash
-$ pyway migrate
+docker compose exec app python manage.py createsuperuser
 ```
 
-### Import
-This allows the user to import a schema file into the migration, for example if the base schema has already been applied, then the user can import that file in so they can then apply subsequent migrations. Currently the import looks in the database_migration_dir for the file.
+Synchronize explicit Riot IDs or refresh every tracked account without the browser:
 
 ```bash
-$ pyway import --schema-file V01_01__initial_schema.sql
+docker compose exec app python manage.py sync_accounts 'Game Name#NA1'
+docker compose exec app python manage.py sync_accounts --all
 ```
 
-### Checksum
-Updates a checksum in the database. This is for advanced use only, as it could put the pyway database out of sync with reality. This is mainly to be used for development, where your pyway file may change because of manual applies or formatting changes. It is meant to get the database in sync with what you believe to be the current state of your system. It should NEVER be used in production, only initial development. If you require schema changes in production, create a new schema and apply that.
+## Configuration
+
+| Variable | Purpose |
+|---|---|
+| `DJANGO_DEBUG` | Development mode; must be false or absent in production |
+| `DJANGO_SECRET_KEY` | Django signing key; required in production |
+| `DJANGO_ALLOWED_HOSTS` | Explicit comma-separated hosts |
+| `DJANGO_CSRF_TRUSTED_ORIGINS` | Explicit HTTPS origins |
+| `DATABASE_URL` | PostgreSQL URL in production |
+| `RIOT_API_KEY` | Bootstrap/recovery Riot credential; the encrypted database override wins |
+| `RIOT_API_KEY_ENCRYPTION_KEY` | Fernet key protecting the database credential |
+| `RIOT_DEFAULT_PLATFORM` | Riot platform region, default `na1` |
+| `RIOT_DEFAULT_ROUTING` | Riot routing region, default `americas` |
+| `RIOT_MATCH_COUNT` | Matches requested per synchronization, 1–100 |
+| `DPS_THREAT_THRESHOLD` | Damage-per-minute threat threshold, default `1800` |
+
+Production secrets belong in the infra repository's SOPS workflow, never in this repository.
+
+## Production image
+
+The image runs as uid/gid `10001`, exposes port 8000, and contains a database-aware health
+check. Its entrypoint collects static files and applies migrations before starting Gunicorn.
 
 ```bash
-$ pyway checksum --checksum-file V01_01__initial_schema.sql
+docker build -t riot-match-analysis .
 ```
 
-# Virtual Environment
+Production needs PostgreSQL and all required environment variables before the container starts.
+The image deliberately fails closed when a signing key, encryption key, allowed host, trusted
+origin, or PostgreSQL URL is missing.
 
-## Create Environment
+## Tests and security checks
 
 ```bash
-spencerreyka@Spencers-MBP stats_losses % python3 -m venv ~/venvs/riot_stats 
+DJANGO_DEBUG=true .venv/bin/python manage.py test
+DJANGO_DEBUG=true .venv/bin/python manage.py makemigrations --check --dry-run
+.venv/bin/bandit -q -r manage.py riot_api stats
+.venv/bin/pip-audit -r requirements.txt
 ```
 
-## Activate Environment 
+CI repeats these checks, validates Django's production configuration, builds the image, and fails
+on actionable high or critical container findings. Dependabot covers Python, Docker, and GitHub
+Actions dependencies.
 
-```bash
-spencerreyka@Spencers-MBP stats_losses % source ~/venvs/riot_stats/bin/activate
-```
-
-## Deactivate Environment
-
-```bash
-(riot_stats) spencerreyka@Spencers-MBP stats_losses % deactivate
-```
-
-
-
-# CodeOwners
-
-To use a CODEOWNERS file, create a new file called CODEOWNERS in the .github/, root, or docs/ directory of the repository, in the branch where you'd like to add the code owners. If CODEOWNERS files exist in more than one of those locations, GitHub will search for them in that order and use the first one it finds.
-
-Each CODEOWNERS file assigns the code owners for a single branch in the repository. Thus, you can assign different code owners for different branches, such as @octo-org/codeowners-team for a code base on the default branch and @octocat for a GitHub Pages site on the gh-pages branch.
-
-For more on CodeOwners, visit [this github page](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)
+See [the revival checklist](docs/TODO.md) and [security review](docs/SECURITY.md) for deployment,
+recovery, and accepted-risk details.

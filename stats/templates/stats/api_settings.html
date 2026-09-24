@@ -1,0 +1,59 @@
+{% extends 'stats/base.html' %}
+{% block title %}Riot API settings · ARAM Review{% endblock %}
+{% block content %}
+<section class="settings-shell">
+  <a class="back-link" href="{% url 'dashboard' %}"><span aria-hidden="true">←</span> Dashboard</a>
+  <div class="settings-heading">
+    <div>
+      <div class="eyebrow"><span>Staff only</span></div>
+      <h1>Riot API <em>credential.</em></h1>
+      <p>Replace the development key without redeploying the application.</p>
+    </div>
+    <a class="secondary-button" href="{% url 'admin:index' %}">Django admin</a>
+  </div>
+
+  <div class="settings-grid">
+    <article class="credential-card">
+      <div class="credential-status">
+        <span class="status-dot {% if credential_status.configured %}ready{% endif %}" aria-hidden="true"></span>
+        <div>
+          <strong>{% if credential_status.configured %}Credential configured{% else %}Credential unavailable{% endif %}</strong>
+          <p>
+            Source: {{ credential_status.source }}.
+            {% if credential_status.updated_at %}Last replaced {{ credential_status.updated_at|date:'M j, Y · g:i A' }}{% if credential_status.updated_by %} by {{ credential_status.updated_by }}{% endif %}.{% endif %}
+          </p>
+        </div>
+      </div>
+
+      {% if credential_status.storage_error %}
+        <div class="config-notice" role="alert">
+          <span aria-hidden="true">!</span>
+          <div><strong>Decryption failed</strong><p>The stored value cannot be used. Verify the deployment encryption key before replacing data.</p></div>
+        </div>
+      {% endif %}
+
+      <form method="post" class="credential-form" autocomplete="off">
+        {% csrf_token %}
+        {% for error in form.non_field_errors %}<div class="field-error" role="alert">{{ error }}</div>{% endfor %}
+        <label for="{{ form.api_key.id_for_label }}">{{ form.api_key.label }}</label>
+        {{ form.api_key }}
+        {% for error in form.api_key.errors %}<small class="field-error" role="alert">{{ error }}</small>{% endfor %}
+        <small class="field-help">{{ form.api_key.help_text }}</small>
+        <button type="submit">Validate and replace key</button>
+      </form>
+    </article>
+
+    <aside class="security-card">
+      <span>Security boundary</span>
+      <h2>What happens on save</h2>
+      <ol>
+        <li>The key is validated directly against Riot over HTTPS.</li>
+        <li>Only encrypted ciphertext is written to the database.</li>
+        <li>The plaintext is never rendered back, logged, or stored in a session.</li>
+        <li>The database value overrides the deployment fallback immediately.</li>
+      </ol>
+      <p>Riot development keys expire after 24 hours. Return here to rotate the key.</p>
+    </aside>
+  </div>
+</section>
+{% endblock %}
