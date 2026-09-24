@@ -37,7 +37,7 @@ private application at `riot.spencerreyka.com`.
 - [x] Keep production debug mode disabled and require production signing and credential-encryption keys.
 - [x] Confirm secure proxy, CSRF, cookie, host, static-file, and browser security-header settings.
 - [x] Remove the expired Riot key from public Git history or document the accepted historical risk.
-- [x] Enable GitHub dependency and secret scanning where repository settings allow it.
+- [x] Enable GitHub dependency, secret, and extended CodeQL scanning where repository settings allow it.
 - [x] Replace the unfinished README with current local, deployment, and recovery instructions.
 - [x] Preserve the divergent `development` branch intentionally as historical implementation context.
 
