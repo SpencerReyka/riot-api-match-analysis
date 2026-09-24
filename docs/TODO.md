@@ -49,7 +49,7 @@ private application at `riot.spencerreyka.com`.
 - [x] Create a Coolify Git application with a 256 MB memory limit and 96 MB reservation.
 - [x] Create a dedicated PostgreSQL resource with a 256 MB memory limit.
 - [x] Add the application database to the encrypted ops backup and restore runbook.
-- [ ] Add internal and external health monitoring through Uptime Kuma.
+- [x] Add internal and external health monitoring through Uptime Kuma.
 - [x] Regenerate the infrastructure inventory and pass drift checks.
 
 ## Deployment
@@ -58,7 +58,7 @@ private application at `riot.spencerreyka.com`.
 - [x] Configure the signed GitHub-to-Coolify deployment webhook.
 - [x] Deploy and apply migrations.
 - [x] Verify Cloudflare Access, health, resource limits, database persistence, and backup coverage.
-- [ ] Validate a real Riot ID import and cached repeat import.
+- [x] Validate a real Riot ID import and cached repeat import.
 
 ## External dependency
 
