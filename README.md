@@ -32,6 +32,13 @@ Open `http://127.0.0.1:8000`. Create a local administrator with:
 docker compose exec app python manage.py createsuperuser
 ```
 
+Synchronize explicit Riot IDs or refresh every tracked account without the browser:
+
+```bash
+docker compose exec app python manage.py sync_accounts 'Game Name#NA1'
+docker compose exec app python manage.py sync_accounts --all
+```
+
 ## Configuration
 
 | Variable | Purpose |

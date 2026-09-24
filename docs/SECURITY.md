@@ -1,9 +1,9 @@
 # Security review
 
-Last reviewed: 2026-09-23
+Last reviewed: 2026-09-24
 
 This review covers the Django application and its Cloudflare/Coolify boundary. DNS, Access, and
-the Tunnel route are live; the application and database deployment remain pending.
+the Tunnel route are live. The application and its private PostgreSQL database run in Coolify.
 
 ## Trust model
 
@@ -37,6 +37,10 @@ the Tunnel route are live; the application and database deployment remain pendin
 - The public health response reports database availability only; it does not disclose credential
   state.
 - The legacy plaintext `config.txt` loader was removed from `manage.py`.
+- The production container runs as uid/gid 10001, has an in-image database-aware health check,
+  and contains no package installer or unused Python build tooling.
+- CI runs tests, migration and deployment checks, Bandit, `pip-audit`, an image build, and Trivy.
+  The deployed image passed with no high or critical findings.
 
 ## Cloudflare deployment status
 
@@ -50,6 +54,15 @@ Verified on 2026-09-23:
 3. Binding and HttpOnly cookies are enabled. The app is hidden from the Access launcher, and an
    unauthenticated request was verified to redirect to Access.
 
+Also verified on 2026-09-24:
+
+1. A separate, more-specific `/healthz` Access application accepts only a one-year service token.
+   It returns the real Django/PostgreSQL health response without creating a public bypass.
+2. Production uses the exact host and trusted origin values above. Coolify holds runtime values
+   sourced from SOPS, and the database has no public port.
+3. The signed GitHub webhook, 256 MB application and database limits, migrations, health check,
+   encrypted backup, checksum, decryption, and `pg_restore --list` validation were verified.
+
 Still required:
 
 1. Enable Cloudflare managed WAF rules. Rate-limit POST requests to `/admin/login/`, `/accounts/`,
@@ -57,23 +70,21 @@ Still required:
    attempts per minute per IP and ten application mutations per minute per authenticated user/IP.
    The current API token lacks Zone Rulesets permission, so this cannot be provisioned with the
    available credential.
-2. Give external monitoring an Access service token for `/healthz`; do not create a public bypass.
-3. Set production values exactly: `DJANGO_ALLOWED_HOSTS=riot.spencerreyka.com` and
-   `DJANGO_CSRF_TRUSTED_ORIGINS=https://riot.spencerreyka.com`.
-4. Create the Django superuser interactively in the Coolify terminal with a unique password. Do
+2. Register the prepared edge and authenticated-health monitors in Uptime Kuma. The setup code,
+   Access path, service token, SOPS values, and host environment file are present; the existing
+   Kuma administrator password is not stored in SOPS and is required to apply the monitor set.
+3. Create the Django superuser interactively in the Coolify terminal with a unique password. Do
    not keep an initial admin password in SOPS or a persistent environment variable.
 
-## Remaining findings before deployment
+## Remaining findings
 
 | Severity | Finding | Required closure |
 |---|---|---|
-| High | Managed-WAF and application rate-limit rules are not provisioned because the current Cloudflare token lacks Zone Rulesets permission. | Supply a narrowly scoped Rulesets token, apply the rules, and verify them before deploying the app. |
-| High | PostgreSQL and encrypted backup/restore are not yet provisioned. | Test restore of the database together with the SOPS encryption key. |
+| High | Managed-WAF and application rate-limit rules are not provisioned because the current Cloudflare token lacks Zone Rulesets permission. | Supply a narrowly scoped Rulesets token, apply the rules, and verify them. Access remains the primary request gate meanwhile. |
 | High | Riot forbids public consumption with development or personal keys. | Keep the whole hostname Access-gated, or obtain a production key before allowing public access. |
 | Medium | The dashboard displays Riot IDs and match-derived statistics to Access-authorized viewers. | Keep the Access allowlist limited to intended viewers. |
 | Medium | Django does not natively throttle login attempts. | Treat Cloudflare Access and login rate limiting as required, not optional. |
-| Medium | GitHub secret scanning, push protection, Dependabot alerts, and security updates are disabled. | Enable them in repository settings before merging the deployment branch. |
-| Medium | Dependency and container scanning are not yet automated. | Add CI auditing and fail builds on actionable high/critical findings. |
+| Medium | Uptime Kuma does not yet contain the two prepared Riot monitors because its administrator password is not in the managed secret sources. | Run the idempotent setup once with the existing Kuma password. |
 | Low | A database dump reveals update timestamps and ciphertext. | Expected; keep the Fernet key separate and restrict backup access. |
 
 ## Historical secret decision
