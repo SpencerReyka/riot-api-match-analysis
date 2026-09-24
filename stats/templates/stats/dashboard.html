@@ -1,0 +1,91 @@
+{% extends 'stats/base.html' %}
+{% block title %}ARAM Review · Match analysis{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <div class="eyebrow"><span>Personal match lab</span></div>
+    <h1>Find the damage.<br><em>Explain the loss.</em></h1>
+    <p>Pull recent ARAMs by Riot ID, cache every result, and see who crossed the {{ dps_threshold|floatformat:0 }} damage-per-minute line.</p>
+  </div>
+
+  <div class="search-panel">
+    <div class="panel-number">01</div>
+    <div class="panel-heading">
+      <span>Analyze a player</span>
+      <small>Game name + tagline</small>
+    </div>
+    {% if user.is_staff %}
+      {% if not riot_configured %}
+        <div class="config-notice" role="status">
+          <span aria-hidden="true">!</span>
+          <div><strong>Riot API key required</strong><p>Open API settings to add a current development key. Cached results remain available.</p></div>
+        </div>
+      {% endif %}
+      <form action="{% url 'add-account' %}" method="post" class="riot-form">
+        {% csrf_token %}
+        <div class="riot-id-fields">
+          <label>
+            <span>{{ form.game_name.label }}</span>
+            {{ form.game_name }}
+            {% for error in form.game_name.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+          </label>
+          <span class="hash" aria-hidden="true">#</span>
+          <label class="tag-field">
+            <span>{{ form.tag_line.label }}</span>
+            {{ form.tag_line }}
+            {% for error in form.tag_line.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+          </label>
+        </div>
+        <button type="submit" {% if not riot_configured %}disabled{% endif %}>
+          <span>Run the numbers</span><span aria-hidden="true">↗</span>
+        </button>
+      </form>
+    {% else %}
+      <div class="read-only-notice">
+        <strong>Read-only archive</strong>
+        <p>Cached analysis is available below. Importing or refreshing players requires a staff login.</p>
+        <a href="{% url 'api-settings' %}">Staff sign in <span aria-hidden="true">↗</span></a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="results-section">
+  <div class="section-heading">
+    <div>
+      <div class="eyebrow"><span>Tracked players</span></div>
+      <h2>The evidence</h2>
+    </div>
+    <p>{{ analyses|length }} player{{ analyses|length|pluralize }} in the local archive</p>
+  </div>
+
+  {% if analyses %}
+    <div class="player-grid">
+      {% for analysis in analyses %}
+        <a class="player-card" href="{% url 'account-detail' analysis.account.pk %}">
+          <div class="card-top">
+            <span class="player-index">{{ forloop.counter|stringformat:'02d' }}</span>
+            <span class="open-arrow" aria-hidden="true">↗</span>
+          </div>
+          <h3>{{ analysis.account.game_name }}<span>#{{ analysis.account.tag_line }}</span></h3>
+          <div class="ratio-row">
+            <strong>{{ analysis.threat_percent|floatformat:0 }}<sup>%</sup></strong>
+            <span>DPS threat rate</span>
+          </div>
+          <progress class="meter" max="100" value="{{ analysis.threat_percent }}" aria-label="{{ analysis.threat_percent|floatformat:0 }} percent DPS threat rate">{{ analysis.threat_percent|floatformat:0 }}%</progress>
+          <dl>
+            <div><dt>Matches</dt><dd>{{ analysis.games }}</dd></div>
+            <div><dt>Avg DPM</dt><dd>{{ analysis.average_dpm|floatformat:0 }}</dd></div>
+            <div><dt>Win rate</dt><dd>{{ analysis.win_percent|floatformat:0 }}%</dd></div>
+          </dl>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <span class="empty-glyph" aria-hidden="true">∅</span>
+      <div><strong>No suspects yet.</strong><p>Add a Riot ID above to import its recent ARAM history.</p></div>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

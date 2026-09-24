@@ -1,13 +1,20 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
-local_riot_psql_data/
+*.py[cod]
+.coverage
+.pytest_cache/
+.venv/
 
+# Django
+db.sqlite3
+staticfiles/
+
+# Local configuration
+.env
+.env.*
+!.env.example
+
+# Editors and operating systems
 .DS_Store
-.pyway.conf
-.pgpass
-
-#ignore the config file cause thats our secrets
-config.txt
-
-
-
+.idea/
+.vscode/

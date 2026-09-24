@@ -1,0 +1,47 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0b1117">
+  <title>{% block title %}ARAM Review{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'stats/app.css' %}">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="page-glow page-glow-one" aria-hidden="true"></div>
+  <div class="page-glow page-glow-two" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="brand" href="{% url 'dashboard' %}" aria-label="ARAM Review home">
+      <span class="brand-mark" aria-hidden="true"><span></span></span>
+      <span>
+        <strong>ARAM Review</strong>
+        <small>Losses, quantified.</small>
+      </span>
+    </a>
+    <div class="header-actions">
+      <a class="admin-link" href="{% url 'api-settings' %}">{% if user.is_staff %}API settings{% else %}Admin sign in{% endif %}</a>
+      <div class="status-pill {% if riot_configured or not user.is_staff %}status-ready{% endif %}">
+        <span></span>{% if user.is_staff %}{% if riot_configured %}Riot connected{% else %}Setup required{% endif %}{% else %}Read-only archive{% endif %}
+      </div>
+    </div>
+  </header>
+
+  {% if messages %}
+    <div class="messages" aria-live="polite">
+      {% for message in messages %}
+        <div class="message message-{{ message.tags|default:'info' }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main id="main-content">{% block content %}{% endblock %}</main>
+
+  <footer class="site-footer">
+    <span>Cached match analysis</span>
+    <span>ARAM · Queue 450 · {{ dps_threshold|floatformat:0 }} DPM threshold</span>
+  </footer>
+</body>
+</html>
