@@ -1,0 +1,59 @@
+{% extends 'stats/base.html' %}
+{% block title %}{{ analysis.account.riot_id }} · ARAM Review{% endblock %}
+{% block content %}
+<section class="detail-hero">
+  <a class="back-link" href="{% url 'dashboard' %}"><span aria-hidden="true">←</span> All players</a>
+  <div class="detail-heading">
+    <div>
+      <div class="eyebrow"><span>Player dossier</span></div>
+      <h1>{{ analysis.account.game_name }}<em>#{{ analysis.account.tag_line }}</em></h1>
+      <p>{% if analysis.account.last_synced_at %}Last synced {{ analysis.account.last_synced_at|date:'M j, Y · g:i A' }}{% else %}Not synced yet{% endif %}</p>
+    </div>
+    {% if user.is_staff %}
+      <form method="post" action="{% url 'refresh-account' analysis.account.pk %}">
+        {% csrf_token %}
+        <button class="secondary-button" type="submit" {% if not riot_configured %}disabled{% endif %}>
+          <span aria-hidden="true">↻</span> Refresh matches
+        </button>
+      </form>
+    {% endif %}
+  </div>
+
+  <div class="stat-grid">
+    <article class="primary-stat">
+      <span>DPS threat rate</span>
+      <strong>{{ analysis.threat_percent|floatformat:0 }}<sup>%</sup></strong>
+      <p>{{ analysis.threats }} of {{ analysis.games }} games above {{ dps_threshold|floatformat:0 }} DPM</p>
+    </article>
+    <article><span>Average damage</span><strong>{{ analysis.average_dpm|floatformat:0 }}</strong><p>damage per minute</p></article>
+    <article><span>Win rate</span><strong>{{ analysis.win_percent|floatformat:0 }}<sup>%</sup></strong><p>{{ analysis.wins }} wins from {{ analysis.games }}</p></article>
+  </div>
+</section>
+
+<section class="match-section">
+  <div class="section-heading compact">
+    <div><div class="eyebrow"><span>Match archive</span></div><h2>Recent ARAMs</h2></div>
+    <p>Newest first</p>
+  </div>
+  {% if matches %}
+    <div class="match-table-wrap">
+      <table class="match-table">
+        <thead><tr><th>Result</th><th>Date</th><th>DPM</th><th>Champion damage</th><th>Threat</th></tr></thead>
+        <tbody>
+          {% for participant in matches %}
+            <tr>
+              <td><span class="result {% if participant.win %}win{% else %}loss{% endif %}">{% if participant.win %}Win{% else %}Loss{% endif %}</span></td>
+              <td><strong>{{ participant.match.game_start|date:'M j, Y' }}</strong><small>{{ participant.match.game_start|date:'g:i A' }}</small></td>
+              <td class="mono">{{ participant.damage_per_minute|floatformat:0 }}</td>
+              <td class="mono">{{ participant.total_damage_to_champions }}</td>
+              <td>{% if participant.damage_per_minute > dps_threshold %}<span class="threat yes">Above</span>{% else %}<span class="threat">Below</span>{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state"><span class="empty-glyph">∅</span><div><strong>No cached matches.</strong><p>A staff user can refresh this account after configuring the Riot API key.</p></div></div>
+  {% endif %}
+</section>
+{% endblock %}

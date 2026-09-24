@@ -1,20 +1,12 @@
 from django.urls import path
+
 from . import views
 
 urlpatterns = [
-    # ex: /stats/
-    path("", views.index, name="index"),
-    # ex: /stats/5/
-    path("calculate/", views.calculate, name="calculate"),
+    path("", views.dashboard, name="dashboard"),
+    path("accounts/", views.add_account, name="add-account"),
+    path("accounts/<int:pk>/", views.account_detail, name="account-detail"),
+    path("accounts/<int:pk>/refresh/", views.refresh_account, name="refresh-account"),
+    path("settings/riot-api/", views.api_settings, name="api-settings"),
+    path("healthz", views.health, name="health"),
 ]
-
-
-
-    # # ex: /stats/
-    # path("", views.index, name="index"),
-    # # ex: /stats/5/
-    # path("<int:question_id>/", views.detail, name="detail"),
-    # # ex: /stats/5/results/
-    # path("<int:question_id>/results/", views.results, name="results"),
-    # # ex: /stats/5/vote/
-    # path("<int:question_id>/vote/", views.vote, name="vote"),
