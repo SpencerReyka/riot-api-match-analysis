@@ -9,7 +9,7 @@ Django staff account.
 
 ## Local development
 
-Python 3.13+ is recommended.
+Python 3.14 is recommended to match the production container and CI runtime.
 
 ```bash
 python3 -m venv .venv

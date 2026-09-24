@@ -40,6 +40,7 @@ the Tunnel route are live. The application and its private PostgreSQL database r
 - The production container runs as uid/gid 10001, has an in-image database-aware health check,
   and contains no package installer or unused Python build tooling.
 - CI runs tests, migration and deployment checks, Bandit, `pip-audit`, an image build, and Trivy.
+- GitHub CodeQL default setup scans Python and Actions weekly with the extended query suite.
   The deployed image passed with no high or critical findings.
 
 ## Cloudflare deployment status
@@ -108,8 +109,8 @@ and the history-removal decision revisited.
 
 ## References
 
-- [Django deployment checklist](https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/)
-- [Django security guidance](https://docs.djangoproject.com/en/5.2/topics/security/)
+- [Django deployment checklist](https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/)
+- [Django security guidance](https://docs.djangoproject.com/en/6.1/topics/security/)
 - [Cloudflare proactive DDoS defense](https://developers.cloudflare.com/ddos-protection/best-practices/proactive-defense/)
 - [Cloudflare Access application paths](https://developers.cloudflare.com/cloudflare-one/access-controls/policies/app-paths/)
 - [Riot Developer Portal key types and security](https://developer.riotgames.com/docs/portal)
