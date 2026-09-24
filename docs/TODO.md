@@ -18,7 +18,7 @@ private application at `riot.spencerreyka.com`.
 - [x] Add a server-rendered dashboard and per-player match history.
 - [x] Show a useful setup state when the Riot key is absent.
 - [x] Add staff-only API key validation and encrypted database-backed rotation.
-- [ ] Finish responsive styling and accessibility review.
+- [x] Finish responsive styling and accessibility review.
 - [x] Add the initial Django migration and verify a clean database bootstrap.
 - [ ] Add a management command for noninteractive account synchronization.
 
@@ -27,10 +27,10 @@ private application at `riot.spencerreyka.com`.
 - [x] Cover Riot ID lookup, header authentication, ARAM filtering, retries, and error mapping.
 - [x] Cover match caching, participant extraction, analysis, and cached-match reuse.
 - [x] Cover dashboard, form errors, refresh behavior, authorization, key rotation, and health checks.
-- [ ] Add a non-root production Docker image and health check.
-- [ ] Add local Docker Compose with PostgreSQL.
-- [ ] Add GitHub Actions for tests, Django deployment checks, and container builds.
-- [ ] Run dependency and container vulnerability scans.
+- [x] Add a non-root production Docker image and health check.
+- [x] Add local Docker Compose with PostgreSQL.
+- [x] Add GitHub Actions for tests, Django deployment checks, and container builds.
+- [x] Run dependency and container vulnerability scans.
 
 ## Security and repository maintenance
 
@@ -38,7 +38,7 @@ private application at `riot.spencerreyka.com`.
 - [x] Confirm secure proxy, CSRF, cookie, host, static-file, and browser security-header settings.
 - [x] Remove the expired Riot key from public Git history or document the accepted historical risk.
 - [ ] Enable GitHub dependency and secret scanning where repository settings allow it.
-- [ ] Replace the unfinished README with current local, deployment, and recovery instructions.
+- [x] Replace the unfinished README with current local, deployment, and recovery instructions.
 - [ ] Review and either close or preserve the divergent `development` branch intentionally.
 
 ## Infrastructure

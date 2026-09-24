@@ -184,6 +184,10 @@ sup { color: var(--lime); font-size: .42em; vertical-align: top; }
 .security-card li + li { margin-top: 10px; }
 .security-card p { margin: 26px 0 0; padding-top: 22px; border-top: 1px solid var(--line); color: var(--muted); font-size: .75rem; line-height: 1.6; }
 
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+}
+
 @media (max-width: 900px) {
   .hero { grid-template-columns: 1fr; gap: 50px; padding-top: 60px; }
   .player-grid { grid-template-columns: repeat(2, 1fr); }
@@ -214,4 +218,5 @@ sup { color: var(--lime); font-size: .42em; vertical-align: top; }
   .match-table th, .match-table td { padding-inline: 15px; white-space: nowrap; }
   .site-footer { flex-direction: column; }
   .credential-card, .security-card { padding: 24px 20px; }
+  .riot-form input, .credential-form input { font-size: 1rem; }
 }
