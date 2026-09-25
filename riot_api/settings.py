@@ -142,6 +142,34 @@ RIOT_DEFAULT_ROUTING = os.getenv("RIOT_DEFAULT_ROUTING", "americas")
 RIOT_MATCH_COUNT = max(1, min(int(os.getenv("RIOT_MATCH_COUNT", "20")), 100))
 DPS_THREAT_THRESHOLD = float(os.getenv("DPS_THREAT_THRESHOLD", "1800"))
 
+# Anonymous analysis is deliberately gated on an approved production key. Riot's developer
+# policy forbids operating a public product with development or personal credentials.
+RIOT_API_KEY_TIER = os.getenv("RIOT_API_KEY_TIER", "development").lower()
+RIOT_PUBLIC_REQUESTS_ENABLED = env_bool("RIOT_PUBLIC_REQUESTS_ENABLED")
+if RIOT_PUBLIC_REQUESTS_ENABLED and RIOT_API_KEY_TIER != "production":
+    raise RuntimeError(
+        "RIOT_PUBLIC_REQUESTS_ENABLED requires RIOT_API_KEY_TIER=production"
+    )
+
+PUBLIC_REQUEST_LIMITS = (
+    (600, max(1, int(os.getenv("PUBLIC_REQUESTS_PER_10_MINUTES", "3")))),
+    (86_400, max(1, int(os.getenv("PUBLIC_REQUESTS_PER_DAY", "10")))),
+)
+PUBLIC_REQUEST_COOLDOWN_SECONDS = max(
+    60, int(os.getenv("PUBLIC_REQUEST_COOLDOWN_SECONDS", "900"))
+)
+PUBLIC_REQUEST_QUEUE_LIMIT = max(1, int(os.getenv("PUBLIC_REQUEST_QUEUE_LIMIT", "100")))
+TRUST_CLOUDFLARE_IP_HEADER = env_bool("TRUST_CLOUDFLARE_IP_HEADER", not DEBUG)
+
+# A personal key is documented at 20 requests/second and 100 requests/2 minutes. These defaults
+# reserve 20% headroom and are shared through PostgreSQL, including staff-triggered refreshes.
+RIOT_LOCAL_RATE_LIMITS = (
+    (1, max(1, int(os.getenv("RIOT_REQUESTS_PER_SECOND", "15")))),
+    (120, max(1, int(os.getenv("RIOT_REQUESTS_PER_2_MINUTES", "80")))),
+)
+
+BACKBONE_RABBITMQ_URL = os.getenv("BACKBONE_RABBITMQ_URL", "")
+
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
 SECURE_SSL_REDIRECT = not DEBUG

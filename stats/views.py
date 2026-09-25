@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.conf import settings
 from django.db import connection
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -7,13 +8,96 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from .forms import RiotAPIKeyForm, RiotIDForm
-from .models import RiotAccount
+from .forms import PublicAnalysisRequestForm, RiotAPIKeyForm, RiotIDForm
+from .models import AnalysisRequest, RiotAccount
+from .public_requests import AnalysisQueueFull, submit_analysis_request
+from .rate_limits import PublicRateLimitExceeded, requester_hash
 from .riot import RiotAPIError, RiotClient
 from .secrets import SecretStorageError, riot_api_key_status, set_riot_api_key
 from .services import analyze_account, sync_account
 
 
+@require_GET
+@never_cache
+def landing(request):
+    return render(request, "stats/landing.html", {"form": PublicAnalysisRequestForm()})
+
+
+@require_POST
+@never_cache
+def request_analysis(request):
+    if not settings.RIOT_PUBLIC_REQUESTS_ENABLED:
+        return render(
+            request,
+            "stats/landing.html",
+            {
+                "form": PublicAnalysisRequestForm(request.POST),
+                "submission_error": (
+                    "Public requests are staged until an approved Riot production key is active."
+                ),
+            },
+            status=503,
+        )
+
+    form = PublicAnalysisRequestForm(request.POST)
+    if not form.is_valid():
+        return render(request, "stats/landing.html", {"form": form}, status=400)
+    try:
+        result = submit_analysis_request(
+            game_name=form.cleaned_data["game_name"],
+            tag_line=form.cleaned_data["tag_line"],
+            requester_hash=requester_hash(request),
+        )
+    except PublicRateLimitExceeded as exc:
+        response = render(
+            request,
+            "stats/landing.html",
+            {"form": form, "submission_error": str(exc)},
+            status=429,
+        )
+        response["Retry-After"] = "600"
+        return response
+    except AnalysisQueueFull as exc:
+        response = render(
+            request,
+            "stats/landing.html",
+            {"form": form, "submission_error": str(exc)},
+            status=503,
+        )
+        response["Retry-After"] = "60"
+        return response
+    return redirect("analysis-request-status", request_id=result.request.id)
+
+
+@require_GET
+@never_cache
+def analysis_request_status(request, request_id):
+    request_row = get_object_or_404(
+        AnalysisRequest.objects.select_related("account"), pk=request_id
+    )
+    analysis = None
+    matches = None
+    if request_row.status == AnalysisRequest.Status.COMPLETE and request_row.account:
+        analysis = analyze_account(request_row.account)
+        matches = request_row.account.participations.select_related("match").order_by(
+            "-match__game_start"
+        )
+    response = render(
+        request,
+        "stats/request_status.html",
+        {"analysis_request": request_row, "analysis": analysis, "matches": matches},
+    )
+    response["Cache-Control"] = "no-store"
+    if request_row.status in (
+        AnalysisRequest.Status.QUEUED,
+        AnalysisRequest.Status.PROCESSING,
+    ):
+        response["Retry-After"] = "5"
+        response["Refresh"] = "5"
+    return response
+
+
+@staff_member_required
 @require_GET
 def dashboard(request):
     accounts = list(RiotAccount.objects.all())
@@ -55,6 +139,7 @@ def add_account(request):
     return redirect("account-detail", pk=result.account.pk)
 
 
+@staff_member_required
 @require_GET
 def account_detail(request, pk: int):
     account = get_object_or_404(RiotAccount, pk=pk)

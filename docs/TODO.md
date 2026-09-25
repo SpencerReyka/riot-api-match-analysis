@@ -1,6 +1,6 @@
 # Revival TODO
 
-Last updated: 2026-09-24
+Last updated: 2026-09-25
 
 This is the working checklist for bringing `riot-api-match-analysis` back into service as a
 private application at `riot.spencerreyka.com`.
@@ -65,3 +65,18 @@ private application at `riot.spencerreyka.com`.
 - [x] Add the current Riot personal API key to the encrypted SOPS source of truth. Development
       keys expire every 24 hours, so live imports require refreshing this value when it expires;
       the deployed service can continue displaying cached data without a current key.
+
+## Public request queue
+
+- [x] Add a public landing page and opaque per-request status/result URLs.
+- [x] Persist the request and `riot.analysis.requested` protobuf outbox event atomically.
+- [x] Add an idempotent RabbitMQ worker with publisher confirms, delayed retries, and a DLQ.
+- [x] Add database-backed visitor limits, Riot-ID cooldown, and a bounded global queue.
+- [x] Add a shared database-backed Riot API budget below the documented upstream limits.
+- [x] Require an explicit production-key tier before anonymous submission can start.
+- [ ] Obtain and install an approved Riot production key.
+- [ ] Provision the worker as a separate Coolify process with the Backbone AMQP secret.
+- [ ] Change Cloudflare Access from whole-host coverage to staff paths only, leaving the landing,
+      request POST, and opaque result URLs public.
+- [ ] Extend the existing Free-plan Cloudflare rate-limit rule to the public submission path and
+      verify the WAF, queue ceiling, worker health, retry queue, and DLQ in production.

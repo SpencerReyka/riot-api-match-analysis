@@ -7,6 +7,7 @@ from django.db.models import Avg, Count, Q
 from django.utils import timezone
 
 from .models import Match, Participant, RiotAccount
+from .rate_limits import RiotDatabaseRateLimiter
 from .riot import RiotAPIError, RiotClient
 from .secrets import SecretStorageError, get_riot_api_key
 
@@ -46,6 +47,7 @@ def build_riot_client(*, routing_region: str, platform_region: str) -> RiotClien
         api_key,
         routing_region=routing_region,
         platform_region=platform_region,
+        before_request=RiotDatabaseRateLimiter(routing_region).acquire,
     )
 
 
