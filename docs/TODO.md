@@ -75,7 +75,8 @@ private application at `riot.spencerreyka.com`.
 - [x] Add a shared database-backed Riot API budget below the documented upstream limits.
 - [x] Require an explicit production-key tier before anonymous submission can start.
 - [ ] Obtain and install an approved Riot production key.
-- [ ] Provision the worker as a separate Coolify process with the Backbone AMQP secret.
+- [x] Provision the worker as a separate private Coolify process with the Backbone AMQP secret;
+      verify its broker connection and process-aware health check.
 - [ ] Change Cloudflare Access from whole-host coverage to staff paths only, leaving the landing,
       request POST, and opaque result URLs public.
 - [ ] Extend the existing Free-plan Cloudflare rate-limit rule to the public submission path and
