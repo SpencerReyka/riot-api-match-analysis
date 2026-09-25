@@ -31,6 +31,9 @@ the Tunnel route are live. The application and its private PostgreSQL database r
   admin. Logs record only that a staff user rotated it.
 - Public users cannot call import or refresh POST endpoints. CSRF middleware remains enabled and
   every mutating form includes a CSRF token.
+- Staff sessions are created only from a valid Cloudflare Access JWT with the configured audience
+  and exact owner email. The automatically provisioned owner is staff/superuser and has an
+  unusable Django password; the unsigned identity header alone is never trusted.
 - Public requests use an unguessable UUID, never expose the internal account id, and are
   protected by hashed-IP fixed-window limits, per-Riot-ID deduplication, a bounded queue, a form
   honeypot, and no-store responses. Raw visitor IP addresses are not persisted.
@@ -90,11 +93,9 @@ Verified on 2026-09-25:
    Backbone and passed its process-aware heartbeat health check. It has no host port or hostname.
 3. The web app, worker, and PostgreSQL all report healthy. The health service token still reaches
    only `/healthz`; presenting it to `/` continues to redirect to Access.
-
-Still required:
-
-1. Create the Django superuser interactively in the Coolify terminal with a unique password. Do
-   not keep an initial admin password in SOPS or a persistent environment variable.
+4. The web and worker were redeployed from application commit `1238853`. The web runtime has the
+   expected Access audience and owner email, so the verified owner identity is promoted into the
+   Django staff session without a separate password prompt.
 
 ## Remaining findings
 
@@ -102,7 +103,7 @@ Still required:
 |---|---|---|
 | High | Riot forbids public consumption with development or personal keys. | The application now enforces this boundary in configuration. Keep the whole hostname Access-gated until an approved production key is installed, then explicitly enable requests. |
 | Medium | The dashboard displays Riot IDs and match-derived statistics to Access-authorized viewers. | Keep the Access allowlist limited to intended viewers. |
-| Medium | Application limits cannot absorb a volumetric attack before it reaches the origin. | Keep Cloudflare proxying/WAF enabled and extend the edge rate-limit expression to `/requests/` before public cutover. |
+| Medium | Application limits cannot absorb a volumetric attack before it reaches the origin. | Keep Cloudflare proxying/WAF enabled and use a fresh Zone Rulesets-scoped token to extend the edge rate-limit expression to `/requests/` before public cutover. |
 | Low | A database dump reveals update timestamps and ciphertext. | Expected; keep the Fernet key separate and restrict backup access. |
 
 ## Historical secret decision

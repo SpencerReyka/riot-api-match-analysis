@@ -80,4 +80,5 @@ private application at `riot.spencerreyka.com`.
 - [ ] Change Cloudflare Access from whole-host coverage to staff paths only, leaving the landing,
       request POST, and opaque result URLs public.
 - [ ] Extend the existing Free-plan Cloudflare rate-limit rule to the public submission path and
-      verify the WAF, queue ceiling, worker health, retry queue, and DLQ in production.
+      verify the WAF, queue ceiling, worker health, retry queue, and DLQ in production. Applying
+      the staged rule requires a fresh Cloudflare token with Zone Rulesets read/write permission.
