@@ -16,13 +16,12 @@ same issuer, same audience check, same owner comparison, same fail-closed behavi
 
 from __future__ import annotations
 
-import json
 import logging
 import threading
 import time
-import urllib.request
 
 import jwt
+import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login
 
@@ -53,9 +52,14 @@ class _KeyCache:
             if self._keys is not None and time.time() - self._at < self.TTL:
                 return self._keys
             try:
-                with urllib.request.urlopen(CERTS_URL, timeout=5) as r:
-                    self._keys = json.loads(r.read())
-                    self._at = time.time()
+                # requests, not urlopen: urlopen accepts any scheme the stdlib knows,
+                # including file://, which bandit flags as B310. A fair objection to the
+                # call even though this URL is a hardcoded constant. requests is HTTP(S)
+                # only, and is already a dependency here.
+                r = requests.get(CERTS_URL, timeout=5)
+                r.raise_for_status()
+                self._keys = r.json()
+                self._at = time.time()
             except Exception:
                 logger.warning("Access: could not fetch signing keys", exc_info=True)
             return self._keys
