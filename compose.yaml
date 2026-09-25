@@ -11,10 +11,35 @@ services:
       RIOT_DEFAULT_ROUTING: ${RIOT_DEFAULT_ROUTING:-americas}
       RIOT_MATCH_COUNT: ${RIOT_MATCH_COUNT:-20}
       DPS_THREAT_THRESHOLD: ${DPS_THREAT_THRESHOLD:-1800}
+      RIOT_API_KEY_TIER: ${RIOT_API_KEY_TIER:-development}
+      RIOT_PUBLIC_REQUESTS_ENABLED: ${RIOT_PUBLIC_REQUESTS_ENABLED:-false}
+      BACKBONE_RABBITMQ_URL: ${BACKBONE_RABBITMQ_URL:-}
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
       db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    profiles: [worker]
+    build: .
+    env_file: .env
+    environment:
+      APP_PROCESS: worker
+      DJANGO_DEBUG: "true"
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
+      RIOT_API_KEY: ${RIOT_API_KEY:-}
+      RIOT_API_KEY_ENCRYPTION_KEY: ${RIOT_API_KEY_ENCRYPTION_KEY:-}
+      RIOT_DEFAULT_PLATFORM: ${RIOT_DEFAULT_PLATFORM:-na1}
+      RIOT_DEFAULT_ROUTING: ${RIOT_DEFAULT_ROUTING:-americas}
+      RIOT_MATCH_COUNT: ${RIOT_MATCH_COUNT:-20}
+      DPS_THREAT_THRESHOLD: ${DPS_THREAT_THRESHOLD:-1800}
+      RIOT_API_KEY_TIER: ${RIOT_API_KEY_TIER:-development}
+      RIOT_PUBLIC_REQUESTS_ENABLED: ${RIOT_PUBLIC_REQUESTS_ENABLED:-false}
+      BACKBONE_RABBITMQ_URL: ${BACKBONE_RABBITMQ_URL:?set BACKBONE_RABBITMQ_URL for the worker}
+    depends_on:
+      app:
         condition: service_healthy
     restart: unless-stopped
 

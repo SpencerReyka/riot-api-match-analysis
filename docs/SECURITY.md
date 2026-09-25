@@ -1,6 +1,6 @@
 # Security review
 
-Last reviewed: 2026-09-24
+Last reviewed: 2026-09-25
 
 This review covers the Django application and its Cloudflare/Coolify boundary. DNS, Access, and
 the Tunnel route are live. The application and its private PostgreSQL database run in Coolify.
@@ -10,6 +10,9 @@ the Tunnel route are live. The application and its private PostgreSQL database r
 - The entire hostname is private behind a Spencer-only Cloudflare Access policy while the app
   uses a development or personal Riot key. Visitors who pass Access can read cached dashboards
   without also starting a Django session.
+- Anonymous submission code is present but fails closed unless both
+  `RIOT_PUBLIC_REQUESTS_ENABLED=true` and `RIOT_API_KEY_TIER=production` are configured. The
+  worker separately requires an internal Backbone RabbitMQ URL.
 - Import, refresh, credential rotation, and Django admin operations require an active staff user.
 - Cloudflare proxies all browser traffic. The origin must remain unreachable from the public
   Internet except through the existing Cloudflare Tunnel.
@@ -28,6 +31,15 @@ the Tunnel route are live. The application and its private PostgreSQL database r
   admin. Logs record only that a staff user rotated it.
 - Public users cannot call import or refresh POST endpoints. CSRF middleware remains enabled and
   every mutating form includes a CSRF token.
+- Public requests use an unguessable UUID, never expose the internal account id, and are
+  protected by hashed-IP fixed-window limits, per-Riot-ID deduplication, a bounded queue, a form
+  honeypot, and no-store responses. Raw visitor IP addresses are not persisted.
+- The request and protobuf outbox envelope commit atomically. RabbitMQ publication uses confirms,
+  the durable consumer is idempotent, transient failures have bounded delayed retries, and
+  exhausted or malformed events enter a DLQ.
+- A PostgreSQL-coordinated limiter keeps all web and worker processes at 15 calls/second and 80
+  calls/two minutes per Riot routing region by default. Riot 429 responses still honor
+  `Retry-After`.
 - Production requires `DEBUG=false`, a non-default `DJANGO_SECRET_KEY`, HTTPS redirects, secure
   cookies, one-hour browser-session expiry, HSTS, strict host validation, and an explicit trusted
   CSRF origin.
@@ -79,8 +91,9 @@ Still required:
 
 | Severity | Finding | Required closure |
 |---|---|---|
-| High | Riot forbids public consumption with development or personal keys. | Keep the whole hostname Access-gated, or obtain a production key before allowing public access. |
+| High | Riot forbids public consumption with development or personal keys. | The application now enforces this boundary in configuration. Keep the whole hostname Access-gated until an approved production key is installed, then explicitly enable requests. |
 | Medium | The dashboard displays Riot IDs and match-derived statistics to Access-authorized viewers. | Keep the Access allowlist limited to intended viewers. |
+| Medium | Application limits cannot absorb a volumetric attack before it reaches the origin. | Keep Cloudflare proxying/WAF enabled and extend the edge rate-limit expression to `/requests/` before public cutover. |
 | Low | A database dump reveals update timestamps and ciphertext. | Expected; keep the Fernet key separate and restrict backup access. |
 
 ## Historical secret decision

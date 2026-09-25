@@ -18,15 +18,18 @@ class ViewTests(TestCase):
             username="operator", is_staff=True
         )
 
-    def test_dashboard_renders_read_only_state_without_staff_session(self):
-        response = self.client.get(reverse("dashboard"))
+    def test_landing_is_public_but_dashboard_requires_staff(self):
+        response = self.client.get(reverse("landing"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Read-only archive")
-        self.assertContains(response, "No suspects yet")
+        self.assertContains(response, "Opening after approval")
         self.assertIn("script-src 'none'", response["Content-Security-Policy"])
         self.assertEqual(response["X-Frame-Options"], "DENY")
         self.assertEqual(response["Referrer-Policy"], "no-referrer")
+        dashboard = self.client.get(reverse("dashboard"))
+        self.assertRedirects(
+            dashboard, f"{reverse('admin:login')}?next={reverse('dashboard')}"
+        )
 
     def test_staff_dashboard_renders_configuration_state(self):
         self.client.force_login(self.staff)

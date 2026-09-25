@@ -30,6 +30,7 @@ class RiotClient:
         sleep=time.sleep,
         timeout: tuple[float, float] = (3.05, 15),
         max_retries: int = 2,
+        before_request=None,
     ):
         if not api_key:
             raise RiotAPIError("Riot API key is not configured.")
@@ -42,9 +43,12 @@ class RiotClient:
         self.sleep = sleep
         self.timeout = timeout
         self.max_retries = max_retries
+        self.before_request = before_request
 
     def _request(self, url: str) -> Any:
         for attempt in range(self.max_retries + 1):
+            if self.before_request is not None:
+                self.before_request()
             try:
                 response = self.session.get(url, timeout=self.timeout)
             except requests.RequestException as exc:

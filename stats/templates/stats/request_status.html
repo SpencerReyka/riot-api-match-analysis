@@ -1,0 +1,40 @@
+{% extends 'stats/base.html' %}
+{% block title %}{{ analysis_request.riot_id }} · ARAM Review{% endblock %}
+{% block content %}
+<section class="request-status-shell">
+  <a class="back-link" href="{% url 'landing' %}"><span aria-hidden="true">←</span> Request another</a>
+  <div class="request-status-card status-{{ analysis_request.status }}">
+    <div class="eyebrow"><span>Analysis {{ analysis_request.get_status_display }}</span></div>
+    <h1>{{ analysis_request.game_name }}<em>#{{ analysis_request.tag_line }}</em></h1>
+    {% if analysis_request.status == 'queued' %}
+      <p>Your request is safely queued. This page checks again every five seconds.</p>
+      <div class="queue-pulse" aria-label="Waiting"><span></span><span></span><span></span></div>
+    {% elif analysis_request.status == 'processing' %}
+      <p>The worker is pulling and scoring recent ARAM matches now.</p>
+      <div class="queue-pulse" aria-label="Processing"><span></span><span></span><span></span></div>
+    {% elif analysis_request.status == 'failed' %}
+      <p>{{ analysis_request.public_message|default:'The analysis could not be completed.' }}</p>
+      <a class="secondary-button" href="{% url 'landing' %}">Try another Riot ID</a>
+    {% endif %}
+  </div>
+</section>
+
+{% if analysis %}
+<section class="detail-hero public-result">
+  <div class="stat-grid">
+    <article class="primary-stat"><span>DPS threat rate</span><strong>{{ analysis.threat_percent|floatformat:0 }}<sup>%</sup></strong><p>{{ analysis.threats }} of {{ analysis.games }} games above {{ dps_threshold|floatformat:0 }} DPM</p></article>
+    <article><span>Average damage</span><strong>{{ analysis.average_dpm|floatformat:0 }}</strong><p>damage per minute</p></article>
+    <article><span>Win rate</span><strong>{{ analysis.win_percent|floatformat:0 }}<sup>%</sup></strong><p>{{ analysis.wins }} wins from {{ analysis.games }}</p></article>
+  </div>
+</section>
+<section class="match-section">
+  <div class="section-heading compact"><div><div class="eyebrow"><span>Match archive</span></div><h2>Recent ARAMs</h2></div><p>Newest first</p></div>
+  <div class="match-table-wrap">
+    <table class="match-table">
+      <thead><tr><th>Result</th><th>Date</th><th>DPM</th><th>Champion damage</th><th>Threat</th></tr></thead>
+      <tbody>{% for participant in matches %}<tr><td><span class="result {% if participant.win %}win{% else %}loss{% endif %}">{% if participant.win %}Win{% else %}Loss{% endif %}</span></td><td><strong>{{ participant.match.game_start|date:'M j, Y' }}</strong><small>{{ participant.match.game_start|date:'g:i A' }}</small></td><td class="mono">{{ participant.damage_per_minute|floatformat:0 }}</td><td class="mono">{{ participant.total_damage_to_champions }}</td><td>{% if participant.damage_per_minute > dps_threshold %}<span class="threat yes">Above</span>{% else %}<span class="threat">Below</span>{% endif %}</td></tr>{% endfor %}</tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

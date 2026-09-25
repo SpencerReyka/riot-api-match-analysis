@@ -1,0 +1,53 @@
+{% extends 'stats/base.html' %}
+{% block title %}ARAM Review · Request a damage report{% endblock %}
+{% block content %}
+<section class="public-hero">
+  <div class="hero-copy">
+    <div class="eyebrow"><span>Recent ARAM evidence</span></div>
+    <h1>Drop a Riot ID.<br><em>Get the receipts.</em></h1>
+    <p>Request a fresh look at a player's recent ARAMs. The worker pulls the match history, caches it, and measures damage per minute without making you wait on the request.</p>
+    <div class="feature-strip" aria-label="How analysis works">
+      <span><strong>01</strong> Queue</span>
+      <span><strong>02</strong> Fetch</span>
+      <span><strong>03</strong> Score</span>
+    </div>
+  </div>
+
+  <div class="search-panel public-request-panel">
+    <div class="panel-number">QUEUE</div>
+    <div class="panel-heading">
+      <span>Request an analysis</span>
+      <small>Game name + tagline</small>
+    </div>
+    {% if submission_error %}<div class="config-notice" role="alert"><span aria-hidden="true">!</span><div><strong>Request unavailable</strong><p>{{ submission_error }}</p></div></div>{% endif %}
+    {% for error in form.non_field_errors %}<div class="config-notice" role="alert"><span aria-hidden="true">!</span><div><p>{{ error }}</p></div></div>{% endfor %}
+    <form action="{% url 'request-analysis' %}" method="post" class="riot-form">
+      {% csrf_token %}
+      <div class="honeypot" aria-hidden="true">{{ form.website }}</div>
+      <div class="riot-id-fields">
+        <label>
+          <span>{{ form.game_name.label }}</span>
+          {{ form.game_name }}
+          {% for error in form.game_name.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+        </label>
+        <span class="hash" aria-hidden="true">#</span>
+        <label class="tag-field">
+          <span>{{ form.tag_line.label }}</span>
+          {{ form.tag_line }}
+          {% for error in form.tag_line.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+        </label>
+      </div>
+      <button type="submit" {% if not public_requests_enabled %}disabled{% endif %}>
+        <span>{% if public_requests_enabled %}Queue the report{% else %}Opening after approval{% endif %}</span><span aria-hidden="true">↗</span>
+      </button>
+    </form>
+    <p class="request-fine-print">Requests are rate-limited and deduplicated. Results use up to {{ riot_match_count }} recent ARAMs and may take a minute.</p>
+  </div>
+</section>
+
+<section class="public-explainer">
+  <article><span>Damage</span><strong>DPM, not vibes.</strong><p>We compare damage per minute across the recent Queue 450 match sample.</p></article>
+  <article><span>Cache</span><strong>One fetch, many reads.</strong><p>Already-seen matches are reused, which protects Riot's API and speeds up repeats.</p></article>
+  <article><span>Guardrails</span><strong>A deliberately short leash.</strong><p>Per-visitor limits, per-player cooldowns, a bounded queue, and a shared upstream budget absorb abuse.</p></article>
+</section>
+{% endblock %}

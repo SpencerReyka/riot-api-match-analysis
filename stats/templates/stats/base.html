@@ -14,7 +14,7 @@
   <div class="page-glow page-glow-one" aria-hidden="true"></div>
   <div class="page-glow page-glow-two" aria-hidden="true"></div>
   <header class="site-header">
-    <a class="brand" href="{% url 'dashboard' %}" aria-label="ARAM Review home">
+    <a class="brand" href="{% url 'landing' %}" aria-label="ARAM Review home">
       <span class="brand-mark" aria-hidden="true"><span></span></span>
       <span>
         <strong>ARAM Review</strong>
@@ -22,9 +22,9 @@
       </span>
     </a>
     <div class="header-actions">
-      <a class="admin-link" href="{% url 'api-settings' %}">{% if user.is_staff %}API settings{% else %}Admin sign in{% endif %}</a>
-      <div class="status-pill {% if riot_configured or not user.is_staff %}status-ready{% endif %}">
-        <span></span>{% if user.is_staff %}{% if riot_configured %}Riot connected{% else %}Setup required{% endif %}{% else %}Read-only archive{% endif %}
+      <a class="admin-link" href="{% url 'dashboard' %}">{% if user.is_staff %}Staff dashboard{% else %}Staff sign in{% endif %}</a>
+      <div class="status-pill {% if public_requests_enabled %}status-ready{% endif %}">
+        <span></span>{% if public_requests_enabled %}Requests open{% else %}Preview only{% endif %}
       </div>
     </div>
   </header>
@@ -40,7 +40,7 @@
   <main id="main-content">{% block content %}{% endblock %}</main>
 
   <footer class="site-footer">
-    <span>Cached match analysis</span>
+    <span>Cached ARAM match analysis</span>
     <span>ARAM · Queue 450 · {{ dps_threshold|floatformat:0 }} DPM threshold</span>
   </footer>
 </body>

@@ -20,6 +20,22 @@ class RiotIDForm(forms.Form):
         return self.cleaned_data["tag_line"].strip().lstrip("#")
 
 
+class PublicAnalysisRequestForm(RiotIDForm):
+    website = forms.CharField(
+        required=False,
+        label="Leave this field empty",
+        widget=forms.TextInput(
+            attrs={"autocomplete": "off", "tabindex": "-1", "aria-hidden": "true"}
+        ),
+    )
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get("website"):
+            raise forms.ValidationError("The request could not be accepted.")
+        return cleaned
+
+
 class RiotAPIKeyForm(forms.Form):
     api_key = forms.CharField(
         label="New Riot API key",

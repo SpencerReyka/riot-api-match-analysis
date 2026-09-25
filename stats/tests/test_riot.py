@@ -34,6 +34,25 @@ class FakeSession:
 
 
 class RiotClientTests(TestCase):
+    def test_reserves_local_capacity_before_every_network_attempt(self):
+        reservations = []
+        session = FakeSession(
+            [
+                FakeResponse(500),
+                FakeResponse(payload={"puuid": "p1", "gameName": "A", "tagLine": "NA1"}),
+            ]
+        )
+        client = RiotClient(
+            "key",
+            session=session,
+            sleep=lambda _seconds: None,
+            before_request=lambda: reservations.append(True),
+        )
+
+        client.account_by_riot_id("A", "NA1")
+
+        self.assertEqual(reservations, [True, True])
+
     def test_uses_header_and_encodes_riot_id(self):
         session = FakeSession(
             [FakeResponse(payload={"puuid": "p1", "gameName": "A Name", "tagLine": "NA1"})]
