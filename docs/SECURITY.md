@@ -82,6 +82,15 @@ Also verified on 2026-09-24:
    account mutation/refresh, and API-key settings endpoints to four requests per 10 seconds per
    IP, followed by a 10-second block.
 
+Verified on 2026-09-25:
+
+1. The public-queue migration deployed while whole-host Access remained active and anonymous
+   submissions remained disabled by the production-key gate.
+2. The separate private `riot-analysis-worker` (`ggsmzwdny0sislqkhz9frf6s`) connected to
+   Backbone and passed its process-aware heartbeat health check. It has no host port or hostname.
+3. The web app, worker, and PostgreSQL all report healthy. The health service token still reaches
+   only `/healthz`; presenting it to `/` continues to redirect to Access.
+
 Still required:
 
 1. Create the Django superuser interactively in the Coolify terminal with a unique password. Do
