@@ -63,6 +63,8 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # After AuthenticationMiddleware, so request.user exists to check before doing anything.
+    "stats.access_sso.CloudflareAccessMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -160,5 +162,20 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
 X_FRAME_OPTIONS = "DENY"
 DATA_UPLOAD_MAX_MEMORY_SIZE = 262_144
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 100
+# Cloudflare Access already authenticates every request that reaches this app, so a Django
+# password is a second lock on a door that is already locked. The middleware above turns the
+# verified Access identity into a session.
+#
+# The admin login stays configured as a fallback: if Access is bypassed during local development,
+# or the signing keys cannot be fetched, the app must still be reachable by someone who knows the
+# password rather than locked out entirely.
+CF_ACCESS_AUD = os.environ.get("CF_ACCESS_AUD", "")
+CF_ACCESS_OWNER_EMAIL = os.environ.get("CF_ACCESS_OWNER_EMAIL", "")
+
+AUTHENTICATION_BACKENDS = [
+    "stats.access_sso.OwnerOnlyRemoteUserBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
 LOGIN_URL = "admin:login"
 LOGIN_REDIRECT_URL = "api-settings"
